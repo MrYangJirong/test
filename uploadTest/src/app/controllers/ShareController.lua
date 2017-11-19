@@ -19,16 +19,16 @@ end
 function ShareController:setShare(flag)
 	local SocialShare = require('app.helpers.SocialShare')
 
-	local share_url = 'http://101.37.150.242/download'
-	local image_url = 'http://101.37.150.242/icon.png'
+	local share_url = 'http://192.168.0.16/download'
+	local image_url = 'http://192.168.0.16/icon.png'
 
 	SocialShare.share(flag, function(platform, stCode, errorMsg)
 		print('platform, stCode, errorMsg', platform, stCode, errorMsg)
 	end,
 	share_url,
 	image_url,
-	'我在 开心牛牛 玩嗨了，快来加入吧！',
-	'开心牛牛')
+	'我在 牛大仙 玩嗨了，快来加入吧！',
+	'牛大仙')
 end
 
 function ShareController:clickHaoYouQun()

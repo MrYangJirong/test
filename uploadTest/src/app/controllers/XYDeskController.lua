@@ -1200,7 +1200,7 @@ function XYDeskController:clickCopyRoomNum()
                 specialText = specialText .. special[v]
             end
         end
-        local title = '【开心牛牛】房间号：'.. room.deskId
+        local title = '【牛大仙】房间号：'.. room.deskId
         local tabBaseStr = {
             ['2/4'] = '1, 2, 3',
             ['4/8'] = '4, 6, 8',

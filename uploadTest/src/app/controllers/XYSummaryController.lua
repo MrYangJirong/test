@@ -57,7 +57,7 @@ function XYSummaryController:clickShare(t)
             nil,
             path,
             "",
-            '开心牛牛',true)
+            '牛大仙',true)
         end
        
       end

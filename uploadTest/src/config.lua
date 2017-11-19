@@ -39,9 +39,9 @@ local function devconf()
 end
 
 local production = {
-  host='101.37.150.242',
+  host='192.168.0.16',
   port = 28302,
-  update = 'http://101.37.150.242:3000/chaoshanniuniu',
+  update = 'http://192.168.0.16:3000/chaoshanniuniu',
   STARTUP='UpdateController'
 }
 
