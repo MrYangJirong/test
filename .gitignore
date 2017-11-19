@@ -1,0 +1,11 @@
+/uploadTest/*
+!uploadTest/src
+!uploadTest/res
+
+test/
+LuaProject.config
+notice.txt
+ReadMe
+README.md
+
+
