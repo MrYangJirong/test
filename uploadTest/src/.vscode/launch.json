@@ -1,4 +1,7 @@
 {
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
@@ -7,9 +10,9 @@
             "request": "launch",
             "runtimeType": "Cocos2",
             "localRoot": "E:/CocosWorkspaces/NNClient/uploadTest",
-            "mainFile": "src/main.lua",
+            "commandLine": "-workdir ${workspaceRoot}/../ -file src/main.lua",
             "port": 7003,
-            "exePath": "E:/CocosWorkspaces/NNClient/uploadTest/win32/debugRun.cmd",
+            "exePath": "E:/CocosWorkspaces/NNClient/uploadTest/simulator/debugRun.cmd",
             "printType": 1
         },
         {
