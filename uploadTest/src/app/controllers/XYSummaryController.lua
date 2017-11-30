@@ -50,14 +50,14 @@ function XYSummaryController:clickShare(t)
                     print('分享图片成功')
                 end
              end
-        else
+         else
             SocialShare.share(1,function(stcode)
             print('stcode is ', stcode)
             end,
             nil,
             path,
             "",
-            '牛大仙',true)
+            '俏游牛牛',true)
         end
        
       end

@@ -26,9 +26,9 @@ function EnterRoomView:clickNumber(i)
   self.roomNo = self.roomNo..tostring(i)
   self:freshNumber()
 
-  if #self.roomNo == 6 then
-    self.emitter:emit('clickEnterGame')
-  end
+  --if #self.roomNo == 6 then
+    --self.emitter:emit('clickEnterGame')
+  --end
 end
 
 function EnterRoomView:clear()

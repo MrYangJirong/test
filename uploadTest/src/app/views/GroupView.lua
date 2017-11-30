@@ -32,30 +32,31 @@ function GroupView:layout()
     local editBoxOrg = input:getChildByName('editBox')
     self.createEditbox = tools.createEditBox(editBoxOrg, {
 		-- holder
-		defaultString = '请输入俱乐部名称',
+		defaultString = '请输入群名',
 		holderSize = 25,
 		holderColor = cc.c3b(155,130,89),
 
 		-- text
 		fontColor = cc.c3b(138,94,31),
 		size = 25,
-		fontType = 'views/font/DroidSansFallback.ttf',	
-        inputMode = cc.EDITBOX_INPUT_MODE_ANY,
+		fontType = 'views/font/fangzheng.ttf',	
+        inputMode = cc.EDITBOX_INPUT_MODE_SINGLELINE,
+		maxCout = 8
     })
 
 	local input = self.bg:getChildByName('left_bg'):getChildByName('joinGroup'):getChildByName('input')
     local joinEditBoxOrg = input:getChildByName('editBox')
     self.joinEditbox = tools.createEditBox(joinEditBoxOrg, {
 		-- holder
-		defaultString = '请输入俱乐部ID',
+		defaultString = '请输入群ID',
 		holderSize = 25,
 		holderColor = cc.c3b(155,130,89),
 
 		-- text
 		fontColor = cc.c3b(138,94,31),
 		size = 25,
-		fontType = 'views/font/DroidSansFallback.ttf',	
-        inputMode = cc.EDITBOX_INPUT_MODE_ANY,
+		fontType = 'views/font/fangzheng.ttf',	
+        inputMode = cc.EDITBOX_INPUT_MODE_NUMERIC,
     })
 
 	-- groupList
@@ -102,7 +103,7 @@ function GroupView:layout()
 	self.roomList:removeAllItems()
 	self.roomList:setScrollBarEnabled(false)
 
-	self.roomInfo = self.bg:getChildByName('roomInfo')
+	-- self.roomInfo = self.bg:getChildByName('roomInfo')
 
 end
 
@@ -132,9 +133,19 @@ function GroupView:freshListGroups(groups)
 		local headimg = item:getChildByName('txKuang'):getChildByName('avator') --头像     
 		self:freshHeadImg(headimg, v.ownerInfo.avatar)
 
-		item:getChildByName('groupName'):setString(v.name)
-		item:getChildByName('member_num'):setString(v.memberCnt)
-		item:getChildByName('room_num'):setString(v.roomCnt)
+		local panel = item:getChildByName('groupName')
+		local groupName = panel:getChildByName('value')
+		groupName:setString(v.name)
+		local positionX = groupName:getWorldPosition().x
+		local panelSize = panel:getContentSize().width
+		local groupNameSize = groupName:getAutoRenderSize().width
+		local size = (groupNameSize >= panelSize) and panelSize or groupNameSize
+		local memberNum = item:getChildByName('member_num')
+		memberNum:setString('( '..v.memberCnt..' )')
+		memberNum:setPositionX(positionX + size)
+
+		local roomCnt = string.format("已开房间(%s)", v.roomCnt)
+		item:getChildByName('room_num'):setString(roomCnt)
 
 		local idx = index + 1
 		item:getChildByName('touch'):addClickEventListener(function()			
@@ -145,17 +156,20 @@ function GroupView:freshListGroups(groups)
 			self.emitter:emit('selectGroup', groupId)
     	end)
 
+		self:freshGroupInfoColor(item, false)
 		if curGroupId and curGroupId == v.id then
 			local groupName = v.name
 			local groupId = v.id
-			self:freshListGroupsSelect(index+1)
+			-- self:freshListGroupsSelect(index+1)
+			self:freshGroupInfoColor(item, true)
 			self:freshGroupNameAndID(true, groupName, groupId)
 			self.emitter:emit('selectGroup', groupId)
 		-- 默认选中第一个
 		elseif (not curGroupId) and index==0 then
 			local groupName = v.name
 			local groupId = v.id
-			self:freshListGroupsSelect(index+1)
+			-- self:freshListGroupsSelect(index+1)
+			self:freshGroupInfoColor(item, true)
 			self:freshGroupNameAndID(true, groupName, groupId)
 			self.emitter:emit('selectGroup', groupId)
 		end	
@@ -184,22 +198,40 @@ function GroupView:freshListGroupsSelect(index)
 	local items = self.groupList:getItems()
 	if items then
 		for i, v in ipairs(items) do
-			v:getChildByName('select'):setVisible(i==index)
-			v:getChildByName('normal'):show(i~=index)
+			self:freshGroupInfoColor(v, i==index)
 		end
 	end
+end
 
+function GroupView:freshGroupInfoColor(node, bSelect)
+	node:getChildByName('select'):setVisible(bSelect)
+	node:getChildByName('normal'):setVisible(not bSelect)
+	if bSelect then
+		node:getChildByName('groupName'):getChildByName('value'):setColor(cc.c3b(175,99,13))
+		node:getChildByName('room_num'):setColor(cc.c3b(175,99,13))
+		node:getChildByName('member_num'):setColor(cc.c3b(175,99,13))			
+	else
+		node:getChildByName('groupName'):getChildByName('value'):setColor(cc.c3b(255,255,255))
+		node:getChildByName('room_num'):setColor(cc.c3b(255,255,255))
+		node:getChildByName('member_num'):setColor(cc.c3b(255,255,255))
+	end 
 end
 
 function GroupView:freshGroupNameAndID(bShow, name, id)
-	local groupName = self.bg:getChildByName('groupName')
-	local groupId = self.bg:getChildByName('groupID')
+	local gPanel = self.bg:getChildByName('gPanel')
+	local groupName = gPanel:getChildByName('groupName')
+	local groupID = self.bg:getChildByName('groupID')
+	local pannelSize = gPanel:getContentSize()
 	if bShow then
 		groupName:setString(name)
-		groupId:getChildByName('IDvalue'):setString(''..id)
+		local positionX = groupName:getWorldPosition().x
+		local gSize = groupName:getAutoRenderSize()
+		local size = (gSize.width >= pannelSize.width) and pannelSize or gSize		
+		groupID:setString('(ID:'..id..')')
+		groupID:setPositionX(positionX + size.width)
 	end
 	groupName:setVisible(bShow)
-	groupId:setVisible(bShow)
+	groupID:setVisible(bShow)
 end
 
 -- 管理员消息按钮
@@ -268,7 +300,7 @@ function GroupView:freshAdminMemberLayer(bShow)
 end
 
 -- setting : rule.special
-local function getSpecialStr(setting, mode, gameplay)
+local function getSpecialStr(setting, mode)
 	-- 特殊牌
 	local tabRule = {
 		WUXIAO = "五小牛",
@@ -281,20 +313,11 @@ local function getSpecialStr(setting, mode, gameplay)
 
 	local tabRule1 = {
         WUXIAO = "五小牛(8倍) ",
-        BOOM = "炸弹牛(8倍) ",
-        HULU = "葫芦牛(8倍) ",
-        WUHUA_J = "五花牛(8倍) ",
-        TONGHUA = "同花牛(8倍) ",
-        STRAIGHT = "顺子牛(8倍) ",
-	}
-
-	local tabRule7 = {
-        WUXIAO = "五小牛(10倍) ",
-        BOOM = "炸弹牛(10倍) ",
-        HULU = "葫芦牛(10倍) ",
-        WUHUA_J = "五花牛(10倍) ",
-        TONGHUA = "同花牛(10倍) ",
-        STRAIGHT = "顺子牛(10倍) ",
+        BOOM = "炸弹牛(7倍) ",
+        HULU = "葫芦牛(6倍) ",
+        WUHUA_J = "五花牛(5倍) ",
+        TONGHUA = "同花牛(5倍) ",
+        STRAIGHT = "顺子牛(5倍) ",
 	}
 
 	local ruleText = ""
@@ -304,13 +327,9 @@ local function getSpecialStr(setting, mode, gameplay)
 			local spName = GameLogic.getSetting(i)
 			if spName then
 				if mode == 'roomInfo' then
-					local tmpTabRule = tabRule1
-					if gameplay and gameplay == 7 then
-						tmpTabRule = tabRule7
-					end
 					addCnt = addCnt + 1
 					local r = addCnt == 3 and "\r\n" or ""
-					ruleText = ruleText .. tmpTabRule[spName] .. r
+					ruleText = ruleText .. tabRule1[spName] .. r
 				else
 					ruleText = ruleText .. tabRule[spName] .. " "
 				end
@@ -319,7 +338,7 @@ local function getSpecialStr(setting, mode, gameplay)
 	end
 	return ruleText
 end
-
+--[[ 
 function GroupView:freshRoomInfo(bShow, rule)
 	if not bShow then
 		self.roomInfo:setVisible(false)
@@ -327,24 +346,16 @@ function GroupView:freshRoomInfo(bShow, rule)
 	end
 
 	-- 玩法
-	local tabWanFa = { '牛牛上庄', '固定庄家', '自由抢庄', '明牌抢庄', '通比牛牛', '星星牛牛', '疯狂加倍'}
+	local tabWanFa = { '牛牛上庄', '固定庄家', '自由抢庄', '明牌抢庄', '通比牛牛' }
 	self.roomInfo:getChildByName('wanfa'):setString(tabWanFa[rule.gameplay])
 
 	-- 底分
-	local tabBaseStr = {
-        ['2/4'] = '1, 2, 3',
-        ['4/8'] = '4, 6, 8',
-        ['5/10'] = '6, 8, 10',
-    }
-    local baseStr = tabBaseStr[rule.base] or rule.base
-	self.roomInfo:getChildByName('difen'):setString(baseStr)
+	self.roomInfo:getChildByName('difen'):setString(rule.base)
 
 	-- 翻倍
 	local beiRuleString
-	if rule.gameplay == 7 then
-		beiRuleString = "牛1~牛牛 1~10倍"
-	elseif rule.multiply == 1 then
-		beiRuleString = "牛牛x5 牛九x4 牛八x3 牛七x2"
+	if rule.multiply == 1 then
+		beiRuleString = "牛牛x4 牛九x3 牛八x2 牛七x2"
 	else
 		beiRuleString = "牛牛x3 牛九x2 牛八x2"
 	end
@@ -361,62 +372,93 @@ function GroupView:freshRoomInfo(bShow, rule)
 	self.roomInfo:getChildByName('roomRule'):setString(advancedString)
 
 	-- 特殊玩法
-	local spStr = getSpecialStr(rule.special, 'roomInfo', rule.gameplay)
+	local spStr = getSpecialStr(rule.special, 'roomInfo')
 	self.roomInfo:getChildByName('Twanfa'):setString(spStr)
 
 	self.roomInfo:setVisible(true)
 end
+ ]]
 
 function GroupView:freshRoomList(roomList, myPlayerId)
-	self.roomList:removeAllItems()
-	
-	
+	self.roomList:removeAllItems()		
 
 	local function addRow(roomId, idx, isOwner, data)
 		if isOwner then 
-			self.roomList:setItemModel(self.roomListRow2)
-		else
 			self.roomList:setItemModel(self.roomListRow1)
+		else
+			self.roomList:setItemModel(self.roomListRow2)
 		end
 		self.roomList:pushBackDefaultItem()	-- self
 		local item = self.roomList:getItem(idx)		
-		-- item:getChildByName('userName'):setString()
+		local userId = item:getChildByName('userID'):setVisible(false)
+		local userName = item:getChildByName('userName'):setVisible(false)
+		userName:setString(''..data.ownerInfo.nickname)
+		local positionX = userName:getPositionX()
+		local size = userName:getAutoRenderSize()
+		userId:setString('(ID:'..data.ownerPlayerId..')')
+		userId:setPositionX(positionX + size.width + 3)
+
 		local headimg = item:getChildByName('txKuang'):getChildByName('avator')
 		self:freshHeadImg(headimg, data.ownerInfo.avatar)
 
-		item:getChildByName('userID'):setString(''..data.ownerPlayerId)
-		item:getChildByName('userName'):setString(''..data.ownerInfo.nickname)
+
 		item:getChildByName('roomID'):getChildByName('value'):setString(''..roomId)	
 		item:getChildByName('renShu'):getChildByName('value'):setString(data.playerCnt..'/6')	
 		-- 玩法
-		local tabWanFa = { '牛牛上庄', '固定庄家', '自由抢庄', '明牌抢庄', '通比牛牛', '星星牛牛', '疯狂加倍'}
+		local tabWanFa = { '牛牛上庄', '固定庄家', '自由抢庄', '明牌抢庄', '通比牛牛', '', '疯狂加倍' }
 		item:getChildByName('wanFa'):setString(tabWanFa[data.rule.gameplay])
 		-- 游戏状态
 
 		-- 详情
-		local tabBaseStr = {
-			['2/4'] = '1,2,3',
-			['4/8'] = '4,6,8',
-			['5/10'] = '6,8,10',
-		}
-		local baseStr = tabBaseStr[data.rule.base] or data.rule.base
-		item:getChildByName('detail'):getChildByName('difen'):setString(baseStr)
+		item:getChildByName('detail'):getChildByName('difen'):setString(data.rule.base)
 		item:getChildByName('detail'):getChildByName('jushu'):setString(data.rule.round)
 		local payMode = 'AA支付'
 		if data.rule.roomPrice == 1 then payMode = '房主支付' end
 		item:getChildByName('detail'):getChildByName('zhifu'):setString(payMode)
-		local mulStr = data.rule.multiply == 1 and '牛牛x5' or '牛牛x3'
+		local mulStr = data.rule.multiply == 1 and '牛牛x4' or '牛牛x3'
 		item:getChildByName('detail'):getChildByName('rule'):setString(mulStr)
-		
+		-- 高级选项
+		local advancedInfo = item:getChildByName('detail'):getChildByName('gou2')
+		local content = ''
+		for k, v in pairs(data.rule.advanced) do
+			if k == 2 and v > 0 then
+				content = '游戏开始后禁止加入'				
+			end
+			if k == 3 and v > 0 then
+				content = content..' 禁止搓牌'
+			end
+		end		
+		if data.rule.putmoney == 2 then
+			content = content..' 闲家推注5倍'				
+		end
+		if data.rule.putmoney == 3 then
+			content = content..' 闲家推注10倍'
+		end
+		if data.rule.putmoney == 4 then
+			content = content..' 闲家推注15倍'
+		end
+		content = (content=='') and '无闲家推注' or content
+		advancedInfo:getChildByName('text2'):setString(content)
 
+		local ruleInfo = item:getChildByName('detail'):getChildByName('gou1'):getChildByName('text1')
 		local ruleText = getSpecialStr(data.rule.special, 'roomlist')
-		item:getChildByName('detail'):getChildByName('teshu'):setString(ruleText)
+		if ruleText == '' then 
+			ruleInfo:setString('无特殊牌型')
+		else
+			ruleInfo:setString(ruleText)
+		end		
+
+		-- 最大抢庄
+		local qMax = item:getChildByName('detail'):getChildByName('qMax')
+		if data.rule.qzMax then
+			qMax:setString('最大抢庄'..data.rule.qzMax..'倍')
+		end
 
 		-- 房间详情
-		local infoBtn = item:getChildByName('descriptionBtn')
-		infoBtn:addClickEventListener(function()
-			self:freshRoomInfo(true, data.rule)
-		end)
+		-- local infoBtn = item:getChildByName('descriptionBtn')
+		-- infoBtn:addClickEventListener(function()
+		-- 	self:freshRoomInfo(true, data.rule)
+		-- end)
 
 		-- touch事件
 		local touch = item:getChildByName('touch')
@@ -436,7 +478,7 @@ end
 
 function GroupView:freshMemberList(memberInfo, adminInfo)
 
-	local function addRow(mode, node, idx, name, playerId, bMgr, headUrl, isBanPlayer)
+	local function addRow(node, idx, name, playerId, bMgr, headUrl)
 		node:pushBackDefaultItem()
 		local item = node:getItem(idx)
 		-- 头像
@@ -456,25 +498,6 @@ function GroupView:freshMemberList(memberInfo, adminInfo)
 				self.emitter:emit('memberListDelMember', playerId)
     		end)
 		end
-
-		local banImg = item:getChildByName('sureBanImg')
-		banImg:setVisible(isBanPlayer)
-
-		local banBtn = item:getChildByName('sureBan')
-		if banBtn then
-			banBtn:setVisible(false)
-			banBtn:addClickEventListener(function()
-				self.emitter:emit('memberListBanMember', {playerId, 'unban'})
-    		end)
-		end
-
-		local unbanBtn = item:getChildByName('unban')
-		if unbanBtn then
-			unbanBtn:setVisible(false)
-			unbanBtn:addClickEventListener(function()
-				self.emitter:emit('memberListBanMember', {playerId, 'ban'})
-    		end)
-		end
 	end
 
 	self.adminMemberList:removeAllItems()
@@ -491,8 +514,8 @@ function GroupView:freshMemberList(memberInfo, adminInfo)
 	local listIdx = 0
 	for i,v in pairs(tabM) do
 		local bMgr = (v.playerId == adminInfo.playerId)
-		addRow(1, self.adminMemberList, listIdx, v.nickname, v.playerId, bMgr, v.avatar, v.isBanplayer)
-		addRow(2, self.normalMemberList, listIdx, v.nickname, v.playerId, bMgr, v.avatar, v.isBanplayer)
+		addRow(self.adminMemberList, listIdx, v.nickname, v.playerId, bMgr, v.avatar)
+		addRow(self.normalMemberList, listIdx, v.nickname, v.playerId, bMgr, v.avatar)
 		listIdx = listIdx + 1
 	end
 end
@@ -501,10 +524,6 @@ function GroupView:freshAdminMemberListDelBtn(bShow, toggle)
 	local items = self.adminMemberList:getItems()
 	if items then
 		for i, v in ipairs(items) do
-			v:getChildByName('sureBanImg'):setVisible(false)
-			v:getChildByName('sureBan'):setVisible(false)
-			v:getChildByName('unban'):setVisible(false)
-
 			local btn = v:getChildByName('sureDelete')
 			local visible = btn:isVisible()
 			local mgr = v:getChildByName('manager'):isVisible()
@@ -514,45 +533,6 @@ function GroupView:freshAdminMemberListDelBtn(bShow, toggle)
 				btn:setVisible(bShow)
 			end
 			if mgr then btn:setVisible(false) end
-		end
-	end
-end
-
-function GroupView:freshAdminMemberListBanBtn(bShow, toggle)
-	
-	local items = self.adminMemberList:getItems()
-	if items then
-		for i, v in ipairs(items) do
-			local img = v:getChildByName('sureBanImg')
-			local imgV = img:isVisible()
-
-			local ban = v:getChildByName('sureBan')
-			local banV = ban:isVisible()
-
-			local unban = v:getChildByName('unban')
-			local unbanV = unban:isVisible()
-
-			local mgrView = (banV or unbanV)
-			local function setView(i, b, u)
-				img:setVisible(i)
-				ban:setVisible(b)
-				unban:setVisible(u)
-			end
-
-			if toggle then
-				if not mgrView then
-					setView(false, imgV, not imgV)
-				else
-					setView(banV, false, false)
-				end
-			else
-				setView(bShow, bShow, bShow)
-			end
-
-			local mgr = v:getChildByName('manager'):isVisible()
-			if mgr then 
-				setView(false, false, false)
-			end
 		end
 	end
 end
@@ -576,8 +556,9 @@ function GroupView:freshModifyGroupName(bShow, curName)
 			-- text
 			fontColor = cc.c3b(138,94,31),
 			size = 30,
-			fontType = 'views/font/DroidSansFallback.ttf',	
-			inputMode = cc.EDITBOX_INPUT_MODE_ANY,
+			fontType = 'views/font/fangzheng.ttf',	
+			inputMode = cc.EDITBOX_INPUT_MODE_SINGLELINE,
+			maxCout = 8
 		})
 		self.modifyGroupEditBox = curGroupName
 	end		
@@ -587,7 +568,7 @@ function GroupView:freshDismissGroup(bShow, groupName)
 	local modifyGroupName = self.bg:getChildByName('dialogs'):getChildByName('dismissGroup'):setVisible(bShow) 
 	local tipsContent = modifyGroupName:getChildByName('content')
 	if groupName then 
-		local content = '您确定要解散俱乐部['..groupName..']吗?'
+		local content = '确认解散群"'..groupName..'"?解散后无法恢复'
 		tipsContent:setString(content) 
 	end
 end
@@ -596,10 +577,14 @@ function GroupView:freshQuitGroup(bShow, groupName)
 	local quitGroupName = self.bg:getChildByName('dialogs'):getChildByName('quitGroup'):setVisible(bShow) 
 	local tipsContent = quitGroupName:getChildByName('content')
 	if groupName then 
-		local content = '您确定要退出俱乐部['..groupName..']吗?'
+		local content = '确认退出群"'..groupName..'"?'
 		tipsContent:setString(content) 
 	end
 end
+
+--[[ function GroupView:freshCreateGroupResult(bShow)	
+	self.bg:getChildByName('dialogs'):getChildByName('createGroupResult'):setVisible(bShow) 
+end ]]
 
 --消息列表
 function GroupView:freshMessageList(msg)

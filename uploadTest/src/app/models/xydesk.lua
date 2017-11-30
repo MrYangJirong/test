@@ -23,8 +23,6 @@ function XYDesk:initialize()
     self.estimate.result = 0
     self.estimate.flag = 0
 
-    self.tabWatcher = {}
-
     -- watcher
     self.isPlayer = false
 
@@ -57,7 +55,7 @@ function XYDesk:initialize()
     }
 
     self.gameOver = false
-    self.tabChatList = {} -- 游戏记录列表
+
     self:listen()
 end
 
@@ -314,13 +312,7 @@ function XYDesk:bindMsgHandles()
         end),
 
         app.conn:on('chatInGame', function(msg)
-            self:updateChatList(msg)
             self.emitter:emit('chatInGame', msg)
-        end),
-
-        app.conn:on(self.DeskName .. '.chatList', function(msg)
-            self:onChatList(msg.data)        
-            self.emitter:emit('chatList', msg)
         end),
 
         app.conn:on(self.DeskName .. '.overgame', function(msg)
@@ -380,17 +372,6 @@ function XYDesk:bindMsgHandles()
         app.conn:on(self.DeskName .. ".somebodyTrusteeship", function(msg)
             self.emitter:emit('somebodyTrusteeship', msg)
         end),
-
-        app.conn:on(self.DeskName .. ".deskRecord", function(msg)
-            self:onDeskRecord(msg)
-            self.emitter:emit('deskRecord', msg)
-        end),
-
-        app.conn:on(self.DeskName .. ".watcherList", function(msg)
-            self:onWatcherList(msg)
-            self.emitter:emit('watcherList', msg)
-        end),
-
     }
 end
 
@@ -415,7 +396,8 @@ function XYDesk:listen()
         ShowWaiting.delete()
         self.info = msg.info
         self.isOwner = msg.isOwner
-        
+        self.gameOver = false
+
         self.players = {}
         if self.info.state then
             self.curState = self.info.state
@@ -688,7 +670,7 @@ function XYDesk:startGame() -- luacheck:ignore
     conn:send(msg)
 end
 
-function XYDesk:sitDown(deskId, buyHorse, mode) -- luacheck:ignore
+function XYDesk:sitDown(deskId, buyHorse) -- luacheck:ignore
     local app = require("app.App"):instance()
     local conn = app.conn
     local msg = {
@@ -696,11 +678,10 @@ function XYDesk:sitDown(deskId, buyHorse, mode) -- luacheck:ignore
         gameIdx = self.gameIdx,
         deskId = deskId,
         buyHorse = buyHorse,
-
     }
 
     dump(msg)
-    self.mode = mode
+
     conn:send(msg)
 end
 
@@ -718,8 +699,7 @@ function XYDesk:quit() -- luacheck:ignore
     local app = require("app.App"):instance()
     local conn = app.conn
     local msg = {
-        msgID = self.DeskName .. '.leaveRoom',
-        mode = self.mode
+        msgID = self.DeskName .. '.leaveRoom'
     }
     conn:send(msg)
 end
@@ -888,68 +868,6 @@ function XYDesk:requestTrusteeship()
     msgID = self.deskName..'.requestTrusteeship',
   }
   conn:send(msg)
-end
-
-function XYDesk:deskRecord()
-    local app = require("app.App"):instance()
-    local conn = app.conn
-    local msg = {
-      msgID = self.deskName..'.deskRecord',
-    }
-    conn:send(msg)
-end
-
-function XYDesk:deskChatList()
-    local app = require("app.App"):instance()
-    local conn = app.conn
-    local msg = {
-      msgID = 'chatList',
-    }
-    conn:send(msg)
-end
-
-function XYDesk:onDeskRecord(msg)
-    self.tabDeskRecord = msg.data or {}
-end
-
-function XYDesk:getDeskRecord(msg)
-    return self.tabDeskRecord
-end
-
-
-function XYDesk:watcherList()
-    local app = require("app.App"):instance()
-    local conn = app.conn
-    local msg = {
-      msgID = 'watcherList',
-    }
-    conn:send(msg)
-end
-
-function XYDesk:onWatcherList(msg)
-    self.tabWatcher = msg.data or {}
-end
-
-function XYDesk:getWatcherList()
-    return self.tabWatcher
-end
-
-function XYDesk:onChatList(msg)
-    self.tabChatList = msg or {}
-end
-
-function XYDesk:updateChatList(msg)  
-    if msg and (msg.type == 0 or msg.type == 1 or msg.type == 2) then
-        local newChat = {type = msg.type, 
-            uid = msg.uid,
-            msg = msg.msg
-        }
-        table.insert(self.tabChatList, newChat)
-    end
-end
-
-function XYDesk:getChatList()
-    return self.tabChatList
 end
 
 return XYDesk

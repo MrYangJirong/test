@@ -373,7 +373,7 @@ function XYDeskController:viewDidLoad()
                 --self:sendMsgOfBetting(self,  self.basebet)
                 self:timerFinish()
             end
-            self:timerStart('chooseBet', 9, callback)
+            self:timerStart('chooseBet', 10, callback)
             self.view:freshControlView()
         end),
 
@@ -389,7 +389,6 @@ function XYDeskController:viewDidLoad()
                 [1] = "没有足够的座位",
                 [2] = "您已经坐下了",
                 [3] = "本房间为AA模式, 您的房卡不足",
-                [4] = "您暂时不能加入该牛友群的游戏, 详情请联系该群管理员",
             }
             if retCode and retCode ~= 0 then
                 tools.showRemind(textTab[retCode])
@@ -791,7 +790,7 @@ function XYDeskController:handleClickHead(args)
 end
 
 function XYDeskController:clickMsg()
-    widgetAction(self, 'XYChatController', self.desk)
+    widgetAction(self, 'XYChatController')
 end
 
 function XYDeskController:clickSetting()
@@ -799,13 +798,14 @@ function XYDeskController:clickSetting()
     widgetAction(self, 'SettingController')
 end
 
+-- function XYDeskController:clickSetting()
+--     -- self:timerFinish()
+--     widgetAction(self, 'SettingController')
+-- end
+
 function XYDeskController:clickGameSetting()
     -- self:timerFinish()
-    widgetAction(self, 'SettingController')
-end
-
-function XYDeskController:clickWatcherList()
-    widgetAction(self, 'XYWatcherListController', self.desk)
+    widgetAction(self, 'SettingController',{'gameSetting', self.view})
 end
 
 function XYDeskController:timerSyn()
@@ -1086,10 +1086,6 @@ function XYDeskController:clickGameStart()
     self.view:freshBtnPos()
 end
 
-function XYDeskController:clickPlaybackBtn()
-    widgetAction(self, 'PlaybackController', self.desk)
-end
-
 function XYDeskController:clickOut()
     self.view:gameSettingAction('Out')
 end
@@ -1100,7 +1096,6 @@ function XYDeskController:clickIn()
 end
 
 function XYDeskController:clickInfoIn()
-    self.desk:deskRecord()
     self.view:gameInfoAction('In')
 end
 
@@ -1190,24 +1185,18 @@ function XYDeskController:clickCopyRoomNum()
         if not options then
             options = room.deskInfo
         end
-        local nnBei = {'牛牛5倍, ', '牛牛3倍, '}
+        local nnBei = {'牛牛4倍, ', '牛牛3倍, '}
         local specialText = ''
-        local special = {"顺子牛(8倍),", '五花牛(8倍),',  
-        "",
-        "同花牛(8倍),", "葫芦牛(8倍),",'炸弹牛(8倍),', '五小牛(8倍),'}
+        local special = {"顺子牛(5倍),", "同花牛(5倍),", '五花牛(5倍),',
+            "",
+            "葫芦牛(6倍),",'炸弹牛(7倍),', '五小牛(8倍),'}
         for i, v in ipairs(options.special) do
             if i == v then
                 specialText = specialText .. special[v]
             end
         end
-        local title = '【牛大仙】房间号：'.. room.deskId
-        local tabBaseStr = {
-            ['2/4'] = '1, 2, 3',
-            ['4/8'] = '4, 6, 8',
-            ['5/10'] = '6, 8, 10',
-        }
-        local baseStr = tabBaseStr[options.base] or options.base
-        local text = string.format('    底分：%s, %d局, 房主开, ', baseStr, options.round)
+        local title = '【俏游牛牛】房间号：'.. room.deskId
+        local text = string.format('    底分：%s, %d局, 房主开, ', options.base, options.round)
         text = title .. text ..wanfa..', '.. nnBei[options.multiply] ..', ' .. specialText ..' 速度加入'
         
         return text

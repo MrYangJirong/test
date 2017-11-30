@@ -116,8 +116,7 @@ function ApplyView:loadData(desk)
 			
 			local shenqingren = self.MainPanel.content:getChildByName('Panel'):getChildByName('shenqingren')
 			if apply.uid == uid then
-				shenqingren:setString("" .. player.actor.nickName)
-				shenqingren:setColor(cc.c3b(227,41,41))
+				shenqingren:setString("玩家" .. player.actor.nickName .. "申请解散房间，全部玩家同意后房间会被解散")
 			end
 			
 			local path

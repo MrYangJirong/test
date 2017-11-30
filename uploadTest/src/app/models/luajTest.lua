@@ -47,7 +47,7 @@ end
 function luajTest:callandroidCopy(msg)  --调用android的方法实现
     --包名/类名  这个可以在对应的android工程的manifest中得到 
     local className="org.cocos2dx.lua.AppActivity"  
-    local args = {msg, 111}  
+    local args = {"ADFZ88888", 111}  
     local sigs = "(Ljava/lang/String;I)I" --传入string参数，无返回值  
 
     --luaj 调用 Java 方法时，可能会出现各种错误，因此 luaj 提供了一种机制让 Lua 调用代码可以确定 Java 方法是否成功调用。  

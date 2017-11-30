@@ -70,17 +70,22 @@ function PersonalPageView:layout(data)
 	end
 
 	local userId = app.session.user.uid
-	local kusoList = middle:getChildByName('kusoList')
+	local kusoListPanel = middle:getChildByName('kusoListPanel')
+	local kusoList = kusoListPanel:getChildByName('kusoList')
+	local Panel_1 = middle:getChildByName('Panel_1')
 	local bg = middle:getChildByName('bg')
 	local bg1 = middle:getChildByName('bg1')
 	bg:setVisible(false)
 	bg1:setVisible(false)
 	if userId ~= data.uid then
 		bg:setVisible(true)
+		kusoListPanel:setVisible(true)
 		kusoList:setVisible(true)
+		Panel_1:setVisible(true)
 
 		kusoList:setItemModel(kusoList:getItem(0))
     	kusoList:removeAllItems()
+		kusoList:setScrollBarEnabled(false)
 
 		for i = 1, 8 do
 			kusoList:pushBackDefaultItem()
@@ -97,7 +102,9 @@ function PersonalPageView:layout(data)
 	else
 		middle:setPosition(display.cx,display.cy-50)
 		bg1:setVisible(true)
+		kusoListPanel:setVisible(false)
 		kusoList:setVisible(false)
+		Panel_1:setVisible(false)
 	end
 
 end

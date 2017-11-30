@@ -312,17 +312,6 @@ function Group:delUser(groupId, playerId)
 	app.conn:send(msg)
 end
 
-function Group:banUser(groupId, playerId, mode)
-	local app = require("app.App"):instance()
-	local msg = {
-		msgID = 'Group_banPlayer',
-		mode = mode,
-		groupId = groupId,
-		playerId = playerId,
-	}
-	app.conn:send(msg)
-end
-
 function Group:memberList(groupId)
 	local app = require("app.App"):instance()
 	local msg = {
@@ -366,8 +355,7 @@ function Group:enterRoom(deskId)
 	local app = require("app.App"):instance()
 	if deskId then
 		deskId = tostring(deskId)
-		local mode = 'group'
-		app.session.room:enterRoom(deskId, nil, mode)
+		app.session.room:enterRoom(deskId)
 	end
 end
 

@@ -3,9 +3,9 @@ local SoundMng = require('app.helpers.SoundMng')
 local CreateRoomView = {}
 local LocalSettings = require('app.models.LocalSettings')
 local roomType = {'szOption', 'gzOption', 'zqOption', 'mqOption', 'tbOption', 'fkOption'}
-local typeOptions = {'base', 'round', 'roomPrice', 'multiply', 'special', 'advanced', "szPoint", 'qzMax'}
+local typeOptions = {'base', 'round', 'roomPrice', 'multiply', 'special', 'advanced', "szPoint", 'qzMax', 'putmoney'}
 
-local setVersion = 6
+local setVersion = 9
 
 function CreateRoomView:initialize()
     self.options = {}
@@ -27,14 +27,14 @@ function CreateRoomView:initialize()
         self.options['szOption'] = { msg = {
             ['gameplay'] = 1,  ['base'] = '2/4',   ['round'] = 10,
             ['roomPrice'] = 1, ['multiply'] = 2, ['special'] = { 1, 0, 0, 0, 0, 0, 0},
-            ['advanced'] = { 1, 0, 0 },
+            ['advanced'] = { 0, 0, 0 },
             ['putmoney'] = 1,
         } }
 
         self.options['gzOption'] = { msg = {
             ['gameplay'] = 2,  ['base'] = '2/4',   ['round'] = 10,
             ['roomPrice'] = 1, ['multiply'] = 2, ['special'] = { 1, 0, 0, 0, 0, 0, 0},
-            ['advanced'] = { 1, 0, 0 },
+            ['advanced'] = { 0, 0, 0 },
             ['szPoint'] = 0,
             ['putmoney'] = 1,
         } }
@@ -42,14 +42,14 @@ function CreateRoomView:initialize()
         self.options['zqOption'] = { msg = {
             ['gameplay'] = 3,  ['base'] = '2/4',   ['round'] = 10,
             ['roomPrice'] = 1, ['multiply'] = 2, ['special'] = { 1, 0, 0, 0, 0, 0, 0},
-            ['advanced'] = { 1, 0, 0 },
+            ['advanced'] = { 0, 0, 0 },
             ['putmoney'] = 1,
         } }
 
         self.options['mqOption'] = { msg = {
             ['gameplay'] = 4,  ['base'] = '2/4',   ['round'] = 10,
             ['roomPrice'] = 1, ['multiply'] = 2, ['special'] = { 1, 0, 0, 0, 0, 0, 0},
-            ['advanced'] = { 1, 0, 0 },
+            ['advanced'] = { 0, 0, 0 },
             ['qzMax'] = 1,
             ['putmoney'] = 1,
         } }
@@ -57,7 +57,7 @@ function CreateRoomView:initialize()
         self.options['tbOption'] = { msg = {
             ['gameplay'] = 5,  ['base'] = '1',     ['round'] = 10,
             ['roomPrice'] = 1, ['multiply'] = 2, ['special'] = { 1, 0, 0, 0, 0, 0, 0},
-            ['advanced'] = { 1, 0 },
+            ['advanced'] = { 0, 0 },
             ['putmoney'] = 1,
         } }
 
@@ -70,9 +70,9 @@ function CreateRoomView:initialize()
         self.options['fkOption'] = { msg = {
             ['gameplay'] = 7,  ['base'] = '2/4',   ['round'] = 10,
             ['roomPrice'] = 1, ['multiply'] = 2, ['special'] = { 1, 0, 0, 0, 0, 0, 0},
-            ['advanced'] = { 1, 0, 0 },
-            ['qzMax'] = 1,
-            ['putmoney'] = 1,
+            ['advanced'] = { 0, 0, 0 },
+            -- ['qzMax'] = 1,
+            -- ['putmoney'] = 1,
         } }
 
         --LocalSettings:setRoomConfig('szOption',self.options['szOption'])
@@ -86,7 +86,6 @@ function CreateRoomView:initialize()
 
         LocalSettings:setRoomConfig('setVersion', setVersion)
 
-
     else
         print(" LocalSettings:getRoomConfig(v..n) is not == nil")
         local base
@@ -96,7 +95,6 @@ function CreateRoomView:initialize()
         local special
         local advanced
         local putmoney
-
 
         local MainPanel = self.ui:getChildByName('MainPanel')
         local bg = MainPanel:getChildByName('bg') 
@@ -109,7 +107,7 @@ function CreateRoomView:initialize()
                 
                 if(n == 'base') then
                     base =  LocalSettings:getRoomConfig(v..n)
-                     if i <= 4 or i == 6 then
+                    if i <= 4 or i == 6 then
                         opView:getChildByName('2/4'):getChildByName('select'):hide()
                         opView:getChildByName('4/8'):getChildByName('select'):hide()
                         opView:getChildByName('5/10'):getChildByName('select'):hide()
@@ -130,12 +128,12 @@ function CreateRoomView:initialize()
                     -- 点击局数为10时 房费设置为 房主支付(      3) 和 AA支付(每人      1) 
                     -- 点击局数为10时 房费设置为 房主支付(      6) 和 AA支付(每人      2) 
                     if opView:getChildByName(round):getName() == '10' then
-                        view:getChildByName('roomPrice'):getChildByName('1'):getChildByName('Text'):setString('房主支付(      3)')
-                        view:getChildByName('roomPrice'):getChildByName('2'):getChildByName('Text'):setString('AA支付(每人      1)')
+                        view:getChildByName('roomPrice'):getChildByName('1'):getChildByName('Text'):setString('房主支付(    3)')
+                        view:getChildByName('roomPrice'):getChildByName('2'):getChildByName('Text'):setString('AA支付(每人    1)')
                     end
                     if opView:getChildByName(round):getName() == '20' then
-                        view:getChildByName('roomPrice'):getChildByName('1'):getChildByName('Text'):setString('房主支付(      6)')
-                        view:getChildByName('roomPrice'):getChildByName('2'):getChildByName('Text'):setString('AA支付(每人      2)')
+                        view:getChildByName('roomPrice'):getChildByName('1'):getChildByName('Text'):setString('房主支付(    6)')
+                        view:getChildByName('roomPrice'):getChildByName('2'):getChildByName('Text'):setString('AA支付(每人    2)')
                     end
                     
                 
@@ -158,6 +156,7 @@ function CreateRoomView:initialize()
                         opView:getChildByName('opt'):getChildByName('1'):getChildByName('select'):hide()
                         opView:getChildByName('opt'):getChildByName('2'):getChildByName('select'):show()
                     end
+
                 elseif(n == 'special') then
                     special =  LocalSettings:getRoomConfig(v..n)
                     for i = 1, 7 do 
@@ -177,8 +176,8 @@ function CreateRoomView:initialize()
                         else
                             opView:getChildByName(idxStr):getChildByName('select'):hide()
                         end
-                    end   
-
+                    end
+                    
                 elseif(n == 'advanced') then
                     advanced =  LocalSettings:getRoomConfig(v..n)
 
@@ -219,7 +218,7 @@ function CreateRoomView:initialize()
                         ['special'] = special,
                         ['advanced'] = advanced,
                         ['szPoint'] = tonumber(szPoint),
-                        ['putmoney'] = tonumber(szPoint)
+                        ['putmoney'] = tonumber(putmoney),
                     } }
                 elseif(i == 4) or (i == 6) then
                     local qzMax = LocalSettings:getRoomConfig('mqOptionqzMax')
@@ -232,7 +231,7 @@ function CreateRoomView:initialize()
                         ['special'] = special,
                         ['advanced'] = advanced,
                         ['qzMax'] = tonumber(qzMax),
-                        ['putmoney'] = tonumber(szPoint)
+                        ['putmoney'] = tonumber(putmoney),
                     } }
                 else
                     self.options[v] = { msg = {
@@ -243,7 +242,7 @@ function CreateRoomView:initialize()
                         ['multiply'] = tonumber(multiply), 
                         ['special'] = special,
                         ['advanced'] = advanced,
-                        ['putmoney'] = tonumber(szPoint)
+                        ['putmoney'] = tonumber(putmoney),
                      } }
                 end
             end
@@ -603,7 +602,7 @@ local tbOption = {
             opt.msg['putmoney'] = tonumber(putmoney)
         end
     },
-    
+
     multiply = {
         type = 'radio',
         options = { '1', '2' },
@@ -698,8 +697,7 @@ local xnOption = {
             end
         end
     },
-}
-
+}  
 -- "名牌抢庄" 视图配置
 local fkOption = {
     base = {
@@ -726,13 +724,13 @@ local fkOption = {
         end
     },
 
-    putmoney = {
+--[[     putmoney = {
         type = 'radio',
         options = { '1', '2', '3', '4'},
         call = function(opt, putmoney)
             opt.msg['putmoney'] = tonumber(putmoney)
         end
-    },
+    }, ]]
     
     multiply = {
         type = 'radio',
@@ -742,14 +740,14 @@ local fkOption = {
         end
     },
 
-    qzMax = {
+--[[     qzMax = {
         type = 'radio',
         options = { '1', '2', '3', '4' },
         call = function(opt, qzMax)
             opt.msg.qzMax = tonumber(qzMax)
         end
     },
-
+ ]]
     special = {
         type = 'check',
         options = { '1', '2', '3', '4', '5', '6', '7' },
@@ -775,6 +773,7 @@ local fkOption = {
         end
     },
 }
+
 
 function CreateRoomView:layout(isMJ)
     local MainPanel = self.ui:getChildByName('MainPanel')
@@ -895,12 +894,12 @@ function CreateRoomView:bindEvent(gameplay, optname)
 
                 if opView:getName() == 'round' then
                     if button:getName() == '10' then
-                        view:getChildByName('roomPrice'):getChildByName('1'):getChildByName('Text'):setString('房主支付(      3)')
-                        view:getChildByName('roomPrice'):getChildByName('2'):getChildByName('Text'):setString('AA支付(每人      1)')
+                        view:getChildByName('roomPrice'):getChildByName('1'):getChildByName('Text'):setString('房主支付(    3)')
+                        view:getChildByName('roomPrice'):getChildByName('2'):getChildByName('Text'):setString('AA支付(每人    1)')
                     end
                     if button:getName() == '20' then
-                        view:getChildByName('roomPrice'):getChildByName('1'):getChildByName('Text'):setString('房主支付(      6)')
-                        view:getChildByName('roomPrice'):getChildByName('2'):getChildByName('Text'):setString('AA支付(每人      2)')
+                        view:getChildByName('roomPrice'):getChildByName('1'):getChildByName('Text'):setString('房主支付(    6)')
+                        view:getChildByName('roomPrice'):getChildByName('2'):getChildByName('Text'):setString('AA支付(每人    2)')
                     end
                 end
 
@@ -938,6 +937,10 @@ function CreateRoomView:getOptions() -- luacheck:ignore
     local key = self.focus .. 'Option'
     local msg = self.options[key].msg
 
+    if key == 'fkOption' then
+        msg.putmoney = 1
+        msg.qzMax = 1
+    end
     -- demo
     -- msg = { ['gameplay'] = 1, ['round'] = 5, ['maxPeople'] = 3, ['point'] = 40, ['5flower5'] = 1 }
 
@@ -950,14 +953,6 @@ function CreateRoomView:getOptions() -- luacheck:ignore
     dump(msg)
 
     return msg
-end
-
-function CreateRoomView:freshPriceLayer(bShow) 
-    self.bg:getChildByName('priceLayer'):setVisible(bShow)
-end
-
-function CreateRoomView:freshTuiZhuLayer(bShow) 
-    self.bg:getChildByName('tuizhuLayer'):setVisible(bShow)
 end
 
 return CreateRoomView

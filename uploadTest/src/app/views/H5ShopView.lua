@@ -27,7 +27,7 @@ function H5ShopView:layout()
     self.webLayer = self.MainPanel:getChildByName('webLayer')
 
     -- self.baseUrl = string.format("http://pay.rongxin020.com/pay/a/test.php?playerId=%s&type=%s&isTiao=1&num=%s",playerId, type, "%s")
-    self.baseUrl = string.format("http://116.62.121.40/qianyifu/index.php?playerId=%s&type=%s&num=%s", playerId, type, "%s")
+    self.baseUrl = string.format("http://192.168.1.122/qianyifu/index.php?playerId=%s&type=%s&num=%s", playerId, type, "%s")
 
     if device.platform == 'ios' or device.platform == 'android' then
         -- 添加网页

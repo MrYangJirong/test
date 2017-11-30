@@ -11,7 +11,7 @@ function UploadError.upload2server(error)
 
   local http = require('http')
   local opt = {
-    host = '45.79.75.209'..':1991',
+    host = config.host..':1991',
     path = '',
     method = 'POST'
   }

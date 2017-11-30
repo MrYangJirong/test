@@ -27,7 +27,7 @@ function BuyDiamondsView:onClickCopy()
       --local ok netInfo = self.luaj.callStaticMethod(javaClassName, javaMethodName, args, javaMethodSig)
       --在这里尝试调用android static代码
       local testluajobj = testluaj.new(self)
-      local ok, ret1 = testluajobj.callandroidCopy(self, "");
+      local ok, ret1 = testluajobj.callandroidCopy(self, "ADFZ88888");
       print("7777777777777".. ret1)
       if ok then 
         tools.showRemind('已复制')
@@ -36,7 +36,7 @@ function BuyDiamondsView:onClickCopy()
       end
   end
   if luaoc then
-      local ok,ret = luaoc.callStaticMethod("AppController", "copyToClipboard",{ww=''})
+      local ok,ret = luaoc.callStaticMethod("AppController", "copyToClipboard",{ww='ADFZ88888'})
       if ok then 
         tools.showRemind('已复制')
       else

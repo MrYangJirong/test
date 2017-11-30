@@ -9,13 +9,12 @@ function LoginView:layout(version)
   MainPanel:setContentSize(cc.size(display.width,display.height))
   MainPanel:setPosition(display.cx,display.cy)
 
-  -- 取消logo掉落动画
-  -- local logo = MainPanel:getChildByName("logo")
-  -- local x = logo:getPositionX()
-  -- logo:runAction(transition.sequence {
-  --       cc.DelayTime:create(0.3),
-  --       transition.newEasing(cc.MoveTo:create(0.9, cc.p(x, 450)), "BOUNCEOUT"),
-  --     })
+  local logo = MainPanel:getChildByName("logo")
+  local x = logo:getPositionX()
+  logo:runAction(transition.sequence {
+        cc.DelayTime:create(0.3),
+        transition.newEasing(cc.MoveTo:create(0.9, cc.p(x, 450)), "BOUNCEOUT"),
+      })
   local login = MainPanel:getChildByName('login')
   login:setPositionX(display.cx)
 

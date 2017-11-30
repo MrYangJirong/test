@@ -42,10 +42,6 @@ function EnterRoomController:clickJoin()
   self.view:clickJoin()
 end
 
-function EnterRoomController:clickHide()
-  SoundMng.playEft('btn_click.mp3')
-  self.emitter:emit('back')
-end
 
 function EnterRoomController:buyHorse(sender)
   local select = sender:getChildByName("select")

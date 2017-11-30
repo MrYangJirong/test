@@ -187,17 +187,11 @@ function RecordView:freshRowInfo(rItem, data)
     end
 
     local base = rItem:getChildByName('base')
-	if data.base then
-		local tabBaseStr = {
-			['2/4'] = '1, 2, 3',
-			['4/8'] = '4, 6, 8',
-			['5/10'] = '6, 8, 10',
-		}
-		local baseStr = tabBaseStr[data['base']] or data['base']
-        base:setString(baseStr)  
+    if data.base then
+        base:setString(data['base'])  
     end
 
-	local arr = { '牛牛上庄', '固定庄家', '自由抢庄', '明牌抢庄', '通比牛牛', '星星牛牛', '疯狂加倍'}
+    local arr = { '牛牛上庄', '固定庄家', '自由抢庄', '明牌抢庄', '通比牛牛', '星星牛牛', '疯狂加倍'}
     local gameplay = rItem:getChildByName('gameplay')
     if data.gameplay then
         gameplay:setString(arr[data['gameplay']])
@@ -274,10 +268,10 @@ function RecordView:freshRListItem(item, player, win, lose, ownerName)
 	local total =(item:getChildByName('total')):getChildByName('value')
 	if player.result then
 		if(player.result>=0)then
-			total:setColor(cc.c3b(255,0,0))--红色
+			total:setColor(cc.c3b(255,69,0))--耐火砖
 			total:setString("+"..player.result)
 		else
-			total:setColor(cc.c3b(56,157,16))--绿色
+			total:setColor(cc.c3b(94,174,255))--深绿色
 			total:setString(player.result)
 		end
 	end
@@ -533,10 +527,10 @@ function RecordView:freshNameAndResultInfo(item1,item2,playersData)
 	textName:setString(playersData.nickName)
 	if playersData.result>=0 then
     textScore:setString("+"..playersData.result)
-	textScore:setColor(cc.c3b(244,82,10))
+	textScore:setColor(cc.c3b(255,69,0))--橙红色
 	else
     textScore:setString(playersData.result)
-	textScore:setColor(cc.c3b(28,148,239))
+	textScore:setColor(cc.c3b(0,128,128))--水鸭色
 	end
    
 end
@@ -569,13 +563,13 @@ function RecordView:freshOnceRoundScore(item, v)
 	local score = item:getChildByName('Text')
 	if v and v.score >= 0 then
 		score:setString("+" .. v.score)
-		score:setColor(cc.c3b(244,82,10))
+		score:setColor(cc.c3b(255,0,0))--纯红
 	elseif v and v.score < 0 then
-		score:setString("-" ..v.score)
-		score:setColor(cc.c3b(28,148,239))
+		score:setString("" ..v.score)
+		score:setColor(cc.c3b(0,255,0))--酸橙色
 	else
-		score:setString('--')
-		score:setColor(cc.c3b(244,82,10))
+		score:setString('-')
+		score:setColor(cc.c3b(255,0,0))--纯红
 	end
 	
 end

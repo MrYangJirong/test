@@ -85,13 +85,12 @@ function Room:doSync()
   app.conn:send(msg)
 end
 
-function Room:enterRoom(deskId, buyHorse, mode)--luacheck:ignore
+function Room:enterRoom(deskId, buyHorse)--luacheck:ignore
   local app = require("app.App"):instance()
   local msg = {
     msgID = 'enterRoom',
     deskId = deskId,
-    buyHorse = buyHorse,
-    mode = mode,
+    buyHorse = buyHorse
   }
   app.conn:send(msg)
 end

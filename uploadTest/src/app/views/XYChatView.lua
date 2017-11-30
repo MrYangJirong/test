@@ -14,7 +14,8 @@ local chatsTbl = {
     '大家一起浪起来',
     '底牌亮出来，绝对吓死你',
     '你真是个天生的演员',
-    '不要走，决战到天亮'   
+    '不要走，决战到天亮'
+   
 }
 
 local emojiTbl = {
@@ -30,6 +31,7 @@ local emojiTbl = {
     '10',
     '11',
     '12',
+
 }
 
 function XYChatView.getChatsTbl()
@@ -40,211 +42,122 @@ function XYChatView:getEmojiTbl()
     return emojiTbl
 end
 
-function XYChatView:layout(desk)
-    self.desk = desk
+function XYChatView:layout()
     local black = self.ui:getChildByName('black')
     black:setContentSize(cc.size(display.width,display.height))
     self.ui:setPosition(display.cx,display.cy)
-    local MainPanel = self.ui:getChildByName('MainPanel')
-    self.MainPanel = MainPanel
+    self.MainPanel = black
 
-	local emojiList = self.MainPanel:getChildByName('emoji'):getChildByName('emojiList')
+    local content = self.ui:getChildByName('content')
+
+    self.list = content:getChildByName('list')
+    self.list:setItemModel(self.list:getItem(0))
+    self.list:removeAllItems()
+
+    self:loadChats()
+
+    self:loadSelBnts()
+    self:loadEmoji()
+
+    --local editbox = content:getChildByName('chat')
+    --local edit = tools.createEditBox(editbox,{
+       -- fontColor = cc.c3b(244,238,229)
+   -- }, 'views/xychat/mf.png', cc.rect(5,5,372 - 5*2,63 - 5*2))
+
+    self.edit = edit
+end
+
+function XYChatView:getSendText()
+    return self.edit:getText()
+end
+
+function XYChatView:loadChats()
+    for i = 1, #chatsTbl do
+        self.list:pushBackDefaultItem()
+        local item = self.list:getItem(i-1)
+        item:getChildByName('text'):setString(chatsTbl[i])
+        item:addClickEventListener(function()
+            self.emitter:emit('choosed', i)
+        end)
+    end
+end
+
+local keys = {
+    'selChat','selEmoji'
+}
+
+function XYChatView:loadSelBnts()
+    local content = self.ui:getChildByName('content')
+
+    --local pathYellow = 'res/views/shop/sc17'
+    --local pathOrange = 'res/views/shop/sc4'
+    local emojiList = content:getChildByName('emojiList')
+    emojiList:setItemModel(emojiList:getItem(0))
+    emojiList:removeAllItems()
     self.emojiList = emojiList
-	emojiList:setItemModel(emojiList:getItem(0))
-	emojiList:removeAllItems()
-	emojiList:setScrollBarEnabled(false)    
-    emojiList:setVisible(false)
-	
-	local shortcutList = self.MainPanel:getChildByName('shortcutList')
-	self.shortcutList = shortcutList
-	shortcutList:setItemModel(shortcutList:getItem(0))
-	shortcutList:removeAllItems()
-	shortcutList:setScrollBarEnabled(false)    
-    shortcutList:setVisible(false)
 
-	local chattingRecord = self.MainPanel:getChildByName('chattingRecord')
-    local item1 = chattingRecord:getChildByName('item1')
-    local item2 = chattingRecord:getChildByName('item2')   
-    local item3 = chattingRecord:getChildByName('item3')   
-    self.item1 = item1
-    self.item2 = item2 
-    self.item3 = item3
-    item1:setVisible(false)    
-    item2:setVisible(false) 
-    item3:setVisible(false)
-    local recordList = chattingRecord:getChildByName('recordList')
-	self.recordList = recordList
-	recordList:setItemModel(item1)
-	recordList:removeAllItems()
-	recordList:setScrollBarEnabled(false)    
+    --local selChat = content:getChildByName('selChat')
+    --local selEmoji = content:getChildByName('selEmoji')
+    --local zOrder = selChat:getLocalZOrder() + 5
+    for i = 1,#keys do
+    local key = keys[i]
+    local tab = content:getChildByName(key)
 
-	local chatEditBox = chattingRecord:getChildByName('Text_input')
-    self.chatEditBox = tools.createEditBox(chatEditBox, {
-		-- holder
-		defaultString = '请输入发言',
-		holderSize = 25,
-		holderColor = cc.c3b(172,108,64),
-
-		-- text
-		fontColor = cc.c3b(172,108,64),
-		size = 25,
-        maxCout = 28,
-		fontType = 'views/font/fangzheng.ttf',	
-        inputMode = cc.EDITBOX_INPUT_MODE_SINGLELINE,
-    })
-
-    self:initShortcutList()
-    self:initEmojiList()
-    self:freshBtnState('shortcut')
-    self:freshListState('shortcut')    
-end
-
-function XYChatView:initShortcutList()
-	local function addRow(node, content, index)
-        local item = node:getItem(index)
-        item:getChildByName('content'):setString(content)
-		item:getChildByName('touch'):addClickEventListener(function()
-			self.emitter:emit('choosed', index+1)
-    	end)
-    end
-	local shortcutList = self.shortcutList
-    shortcutList:setVisible(true)    
-	shortcutList:removeAllItems()
-    local index = 0
-	for i, v in pairs(chatsTbl) do
-		shortcutList:pushBackDefaultItem()
-        addRow(shortcutList, v, index)
-        index = index + 1			
-	end	
-end
-
-function XYChatView:freshBtnState(mode)
-    local shortcutBtn = self.MainPanel:getChildByName('shortcutBtn'):getChildByName('active')
-    local emojiBtn = self.MainPanel:getChildByName('emojiBtn'):getChildByName('active')
-    local recordBtn = self.MainPanel:getChildByName('recordBtn'):getChildByName('active')
-    local mode = mode or 'shortcut'
-    if mode == 'shortcut' then
-        shortcutBtn:setVisible(true)
-        emojiBtn:setVisible(false)
-        recordBtn:setVisible(false)
-    elseif mode == 'emoji' then
-        emojiBtn:setVisible(true)    
-        shortcutBtn:setVisible(false)
-        recordBtn:setVisible(false)
-    elseif mode == 'record' then
-        recordBtn:setVisible(true)
-        emojiBtn:setVisible(false)    
-        shortcutBtn:setVisible(false)
-    end
-end
-
-function XYChatView:freshListState(mode)
-    local chattingRecord = self.MainPanel:getChildByName('chattingRecord')
-    local mode = mode or 'shortcut'
-    if mode == 'shortcut' then
-        self.shortcutList:setVisible(true)
-        self.emojiList:setVisible(false)
-        chattingRecord:setVisible(false)
-    elseif mode == 'emoji' then
-        self.emojiList:setVisible(true)    
-        self.shortcutList:setVisible(false)
-        chattingRecord:setVisible(false)
-    elseif mode == 'record' then
-        chattingRecord:setVisible(true)
-        self.emojiList:setVisible(false)    
-        self.shortcutList:setVisible(false)
-    end    
-end
-
-function XYChatView:freshRecordList(msg)
-    if msg == nil then return end
-    
-    local avatarTab = {}
-    local players = self.desk.players
-    for k, v in pairs(players) do
-        avatarTab[v.actor.uid] = v.actor.avatar
+    tab:addClickEventListener(function()
+      self.focus = key
+      self:freshFocus()
+    end)
     end
 
-	local function addRow(content, idx, uid, mode, emojiIdx)  
-        local size = nil
-        if content then size = string.len(content) end    --42
-        if mode == 'text' and size <= 42 then
-            self.recordList:setItemModel(self.item1)
-        elseif  mode == 'text' and size > 42 then 
-            self.recordList:setItemModel(self.item2)
-        elseif mode == 'emoji' and emojiIdx then
-            self.recordList:setItemModel(self.item3)            
+    self.focus = 'selChat'
+    self:freshFocus()
+
+    --selChat:addClickEventListener(function()
+    --selChat:loadTexture(pathOrange)
+    --selEmoji:loadTexture(pathYellow)
+    --selChat:setLocalZOrder(zOrder)
+    --selEmoji:setLocalZOrder(zOrder - 1)
+    --emojiList:setVisible(false)
+    --self.list:setVisible(true)
+    --end)
+
+    --selEmoji:addClickEventListener(function()
+    --  selChat:loadTexture(pathYellow)
+    --  selEmoji:loadTexture(pathOrange)
+    --  selEmoji:setLocalZOrder(zOrder)
+    --  selChat:setLocalZOrder(zOrder - 1)
+    --  emojiList:setVisible(true)
+    --  self.list:setVisible(false)
+    --end)
+end
+
+function XYChatView:freshFocus()
+    local content = self.ui:getChildByName('content')
+
+    for i = 1,#keys do
+        local key = keys[i]
+        local tab = content:getChildByName(key)
+        local active = tab:getChildByName('active')
+
+        if key == self.focus then
+            active:show()
+        else
+            active:hide()
         end
-
-        self.recordList:pushBackDefaultItem()
-        local item = self.recordList:getItem(idx)    
-        item:setVisible(true)
-        if mode == 'text' then
-            local contentNode = item:getChildByName('contentPanel')
-                :getChildByName('img_content')
-                :getChildByName('content')                       
-            contentNode:setString(content)
-        elseif mode == 'emoji' then
-            local contentNode = item:getChildByName('contentPanel')
-                :getChildByName('img_emoji')
-            local path = 'views/xychat/'..emojiIdx..'.png'
-            contentNode:loadTexture(path)
-        end   
-        self:freshHeadImg(item, avatarTab[uid])
     end
 
-    local recordList = self.recordList  
-    recordList:removeAllItems()  
-    local idx = 0
-    local mode = nil
-    local content = nil
-    local emojiIdx = nil
-    for k, v in pairs(msg) do
-        if v.type == 0 and v.msg then --快捷语
-            content = chatsTbl[v.msg]
-            mode = 'text'
-        elseif v.type == 1 and v.msg then --表情
-            emojiIdx = v.msg
-            mode = 'emoji'
-        elseif v.type == 2 and v.msg then --自定义文字
-            content = v.msg
-            mode = 'text'
-        end        
-       
-        addRow(content, idx, v.uid, mode, emojiIdx) 
-        idx = idx + 1
+    if self.focus ~= 'selChat' then
+        self.emojiList:show()
+        self.list:hide()
+    else
+        self.emojiList:hide()
+        self.list:show()
     end
-    recordList:jumpToBottom()
 end
 
-function XYChatView:freshHeadImg(item, headUrl)
-    local node = item:getChildByName('avatar')
-    if headUrl == nil or headUrl == '' then return end
-    local cache = require('app.helpers.cache')		 
-	cache.get(headUrl, function(ok, path)
-		if ok then
-			node:show()
-			node:loadTexture(path)
-		else
-			node:loadTexture('views/public/tx.png')
-		end
-	end)
-end
-
-function XYChatView:getChatEditBoxInfo() 
-    local text = self.chatEditBox:getText()
-    return text 	
-end
-
-function XYChatView:freshChatEditBox(content, enable)
-    enable = enable or false
-    self.chatEditBox:setText(content)
-    self.chatEditBox:setEnabled(enable)
-end
-
-function XYChatView:initEmojiList()
-    local emojiList = self.emojiList    
-    emojiList:setVisible(true)
+function XYChatView:loadEmoji()
+    local content = self.ui:getChildByName('content')
+    local emojiList = content:getChildByName('emojiList')
     emojiList:removeAllItems()
 
     local line = #emojiTbl / 3
@@ -255,18 +168,20 @@ function XYChatView:initEmojiList()
     for i = 1, line do
         emojiList:pushBackDefaultItem()
         local item = emojiList:getItem(i - 1)
+        -- item:setScale(1.1)
         self:setBtnClickEvent(item, i - 1, 3)
     end
 end
 
 function XYChatView:setBtnClickEvent(item, line, col)
     for i = 1, col do
-        local touch = item:getChildByName('touch_'..i)
+        local btn = item:getChildByName('btn_'..i)
         local id = 3 * line + i
         local path = "views/xychat/"..id..".png"
-        touch:getChildByName('imoji_img'):loadTexture(path)
+        btn:loadTextures(path, "")
+        btn:setVisible(true)
 
-        touch:addClickEventListener(function()
+        btn:addClickEventListener(function()
             self.emitter:emit('back')
             local app = require("app.App"):instance()
             local tmsg = {

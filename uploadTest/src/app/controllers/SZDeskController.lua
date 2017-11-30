@@ -27,7 +27,7 @@ function SZDeskController:postAppendListens()
             -- self:clickFanPai()
             self:timerFinish()
           end
-          self:timerStart('checkCards', 8, callback)
+          self:timerStart('checkCards', 15, callback)
         end)
 
     self.listener[#self.listener + 1] =
@@ -36,7 +36,7 @@ function SZDeskController:postAppendListens()
                 -- self:clickSQZNo()
                 self:timerFinish()
             end
-            self:timerStart('chooseQZ', 6, callback)
+            self:timerStart('chooseQZ', 9, callback)
         end)
 end
 

@@ -9,17 +9,17 @@ function invokefriend.invoke(room,wanfa)
 
   dump(options)
 
-  local nnBei1 = {'牛牛5倍, ', '牛牛3倍, '}
+  local nnBei1 = {'牛牛4倍, ', '牛牛3倍, '}
   local nnBei2 = {'1-10倍', '1-10倍'}
-  
-  local specialText = ''
-  local special2 = {"顺子牛(8倍),", '五花牛(8倍),',  
-  "",
-  "同花牛(8倍),", "葫芦牛(8倍),",'炸弹牛(8倍),', '五小牛(8倍),'}
 
-  local special1 = {"顺子牛(10倍),", '五花牛(10倍),',  
-  "",
-  "同花牛(10倍),", "葫芦牛(10倍),",'炸弹牛(10倍),', '五小牛(10倍),'}
+  local specialText = ''
+  local special2 = {"顺子牛(5倍),", "同花牛(5倍),", '五花牛(5倍),',
+      "",
+      "葫芦牛(6倍),",'炸弹牛(7倍),','五小牛(8倍),'}
+
+  local special1 = {"顺子牛(10倍),", "同花牛(10倍),", '五花牛(10倍),',
+      "",
+      "葫芦牛(10倍),",'炸弹牛(10倍),','五小牛(10倍),'}
 
   local special = special2
   local nnBei = nnBei1
@@ -34,18 +34,12 @@ function invokefriend.invoke(room,wanfa)
       specialText = specialText .. special[v]
     end
   end
-  local title = '牛大仙【房间号：'.. room.deskId ..'】'
+  local title = '俏游牛牛【房间号：'.. room.deskId ..'】'
 
   --local share_url = string.format('http://118.31.64.212/download.php?UserID=%s&RoomID=%s','111' ,room.deskId)
-  local share_url = 'http://192.168.0.16/download'
-  local image_url = 'http://192.168.0.16/icon.png'
-  local tabBaseStr = {
-    ['2/4'] = '1, 2, 3',
-    ['4/8'] = '4, 6, 8',
-    ['5/10'] = '6, 8, 10',
-  }
-  local baseStr = tabBaseStr[options.base] or options.base
-  local text = string.format(' 底分：%s, %d局, 房主开, ', baseStr, options.round)
+  local share_url = 'https://192.168.1.122/download'
+  local image_url = 'http://192.168.1.122/icon2.png'
+  local text = string.format(' 底分：%s, %d局, 房主开, ', options.base, options.round)
 
   text = text ..wanfa..', '.. nnBei[options.multiply] ..', ' .. specialText ..' 速度加入'
   SocialShare.share(1,function(platform,stCode,errorMsg)

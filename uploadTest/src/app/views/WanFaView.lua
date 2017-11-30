@@ -9,9 +9,7 @@ function WanFaView:layout()
   self.MainPanel = MainPanel
 
   local middle = MainPanel:getChildByName('middle')
-  middle:setPosition(display.cx,display.cy)  
-  local ListView = middle:getChildByName('rulePanel'):getChildByName('ListView')   
-  ListView:setScrollBarEnabled(false)
+  middle:setPosition(display.cx,display.cy)
   --middle:setVisible(false)
 
   --local TopBar = MainPanel:getChildByName('TopBar')

@@ -9,10 +9,10 @@
             "type": "lua",
             "request": "launch",
             "runtimeType": "Cocos2",
-            "localRoot": "E:/CocosWorkspaces/NNClient/uploadTest",
-            "commandLine": "-workdir ${workspaceRoot}/../ -file src/main.lua",
+            "localRoot": "E:/Workspace/NYS/client_lua",
+            "commandLine": "-workdir localRoot/../ -file src/main.lua",
             "port": 7003,
-            "exePath": "E:/CocosWorkspaces/NNClient/uploadTest/simulator/debugRun.cmd",
+            "exePath": "E:/Workspace/NYS/client_lua/win32/debugRun.cmd",
             "printType": 1
         },
         {

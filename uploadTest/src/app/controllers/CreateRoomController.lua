@@ -46,20 +46,6 @@ function CreateRoomController:clickBack()
     self.emitter:emit('back')
 end
 
-function CreateRoomController:clickRoomPriceLayer()
-    self.view:freshPriceLayer(false) 
-end
-function CreateRoomController:clickPriceWhy()
-    self.view:freshPriceLayer(true) 
-end
-
-function CreateRoomController:clickTuiZhuLayer()
-    self.view:freshTuiZhuLayer(false) 
-end
-function CreateRoomController:clickTuiZhuWhy()
-    self.view:freshTuiZhuLayer(true) 
-end
-
 function CreateRoomController:clickNotOpen()
     local tools = require('app.helpers.tools')
     tools.showRemind('暂未开放，敬请期待')

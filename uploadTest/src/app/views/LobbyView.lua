@@ -146,92 +146,118 @@ function LobbyView:sendHeartbeatMsg(dt)
   self.heartbeatCheck:update(dt)
 end
 
-function LobbyView:freshRoomListBtn(btnName)
-  local roomList = self.MainPanel:getChildByName('TopBar'):getChildByName('roomList')
-  local kf = roomList:getChildByName('Image_kuang')
-  local kg = roomList:getChildByName('Image_kuang_0')
-  kf:setVisible(false)
-  kg:setVisible(false)
-  if btnName == 'friend' then
-    kf:setVisible(true)
-  else
-    kg:setVisible(true)
-  end 
+function LobbyView:freshImageTitle(mode)
+  local roomList = self.roomList
+  local img_haoyou = roomList:getChildByName('img_haoyou')
+  local img_niuyou = roomList:getChildByName('img_niuyou')
+  img_haoyou:setVisible(false)
+  img_niuyou:setVisible(false)
 
+  if mode == 'friend' then
+    img_haoyou:setVisible(true)
+  else
+    img_niuyou:setVisible(true)
+  end
+end
+
+function LobbyView:freshRoomListView(btnName)
+  local roomList = self.roomList
+  local list = roomList:getChildByName('list')
+  local list1 = roomList:getChildByName('list1')
+  list:setVisible(false)
+  list1:setVisible(false)
+
+  if btnName == 'friend' then
+    list:setVisible(true)
+  else
+    list1:setVisible(true)
+  end
 end
 
 function LobbyView:loadRooms(rooms)
-  local roomList = self.roomList
-  local list = roomList:getChildByName('list')
-  local Image_noRoom = self.roomList:getChildByName('Image_noRoom')
-  local Text_noRoom = self.roomList:getChildByName('Text_noRoom')
-
-  print('-----------============fresh lobbyview roomlist!!!-=================')
-  if not rooms or nil == rooms.rooms then
-    list:setVisible(false)
-    Image_noRoom:setVisible(true)
-    Text_noRoom:setVisible(true)
-    list:removeAllItems()
-    return
-  else
-    list:setVisible(true)
-    Image_noRoom:setVisible(false)
-    Text_noRoom:setVisible(false)
-  end
-
-  list:setItemModel(list:getItem(0))
-  list:removeAllItems()
-  local data = rooms.rooms
-  local arr = { '牛牛上庄', '固定庄家', '自由抢庄', '明牌抢庄', '通比牛牛', '', '疯狂加倍'}
-
-
-  for i, v in ipairs(data) do
-    list:pushBackDefaultItem()
-    local item = list:getItem(i - 1)
-    local roomId = item:getChildByName('roomId')
-    roomId:setString(v.deskId)
-
-    local gameplay = item:getChildByName('game')
-    gameplay:setString(arr[v.options.gameplay])
-
-    local base = item:getChildByName('base')
-    local tabBaseStr = {
-      ['2/4'] = '1, 2, 3',
-      ['4/8'] = '4, 6, 8',
-      ['5/10'] = '6, 8, 10',
-    }
-    local baseStr = tabBaseStr[v.options.base] or v.options.base
-    base:setString(baseStr)
-
-    local round = item:getChildByName('round')
-    round:setString(v.options.round)
-
-    local pay = item:getChildByName('pay')
-    local payText = "房主"
-    if v.options.roomPrice == 1 then
-      payText = "房主"
-    else
-      payText = "AA"
+  local function freshListView(rooms, mode)
+    local roomList = self.roomList
+    local list = roomList:getChildByName('list')
+    if mode == 2 then
+      list = roomList:getChildByName('list1')
     end
-    pay:setString(payText)
-
-    local maxPeople = item:getChildByName('maxPeople')
-    maxPeople:setString(v.actors)
-
-    local inviteBtn=item:getChildByName('invite')
-    inviteBtn:addClickEventListener(function()
-        self.emitter:emit('inviteBtn',v) --邀请
-    end)
-    
-    item:addClickEventListener(function()
-      local rId = v.deskId
-      app.session.room:enterRoom(rId, false)
-    end)
+    local Image_noRoom = self.roomList:getChildByName('Image_noRoom')
+    local Text_noRoom = self.roomList:getChildByName('Text_noRoom')
+  
+    if not rooms or nil == rooms.rooms then
+      -- list:setVisible(false)
+      Image_noRoom:setVisible(true)
+      Text_noRoom:setVisible(true)
+      list:removeAllItems()
+      return
+    else
+      -- list:setVisible(true)
+      Image_noRoom:setVisible(false)
+      Text_noRoom:setVisible(false)
+    end
+  
+    list:setItemModel(list:getItem(0))
+    list:removeAllItems()
+    local data = rooms.rooms
+    local arr = { '牛牛上庄', '固定庄家', '自由抢庄', '明牌抢庄', '通比牛牛', '', '疯狂加倍'}
+  
+    for i, v in ipairs(data) do
+      list:pushBackDefaultItem()
+      local item = list:getItem(i - 1)
+      local roomId = item:getChildByName('roomId')
+      roomId:setString(v.deskId)
+  
+      local gameplay = item:getChildByName('game')
+      gameplay:setString(arr[v.options.gameplay])
+  
+      local base = item:getChildByName('base')
+      base:setString(v.options.base)
+  
+      local round = item:getChildByName('round')
+      round:setString(v.options.round)
+  
+      local pay = item:getChildByName('pay')
+      local payText = "房主"
+      if v.options.roomPrice == 1 then
+        payText = "房主"
+      else
+        payText = "AA"
+      end
+      pay:setString(payText)
+  
+      local maxPeople = item:getChildByName('maxPeople')
+      maxPeople:setString(v.actors)
+  
+      local inviteBtn=item:getChildByName('invite')
+      inviteBtn:addClickEventListener(function()
+          self.emitter:emit('inviteBtn',v) --邀请
+      end)
+      
+      item:addClickEventListener(function()
+        local rId = v.deskId
+        app.session.room:enterRoom(rId, false)
+      end)
+    end
   end
+  
+  local data1 = {}
+  local data2 = {}
+  
+  if rooms.rooms and #rooms.rooms > 0 then
+    for i,v in pairs(rooms.rooms) do
+      if v.groupInfo then
+        if not data2.rooms then data2.rooms = {} end
+        table.insert( data2.rooms, v)
+      else
+        if not data1.rooms then data1.rooms = {} end
+        table.insert( data1.rooms, v)
+      end
+    end
+  end
+
+  freshListView(data1, 1)
+  freshListView(data2, 2)
 end
-
-
-
 
 function LobbyView:displayMenu(bool)
     local BottomBar = self.MainPanel:getChildByName('BottomBar')

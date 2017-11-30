@@ -4,13 +4,14 @@ local HasSignals = require('HasSignals')
 local SettingController = class("SettingController", Controller):include(HasSignals)
 local SoundMng = require('app.helpers.SoundMng')
 
-function SettingController:initialize()
+function SettingController:initialize(data)
   Controller.initialize(self)
   HasSignals.initialize(self)
+  self.data = data
 end
 
 function SettingController:viewDidLoad()
-  self.view:layout()
+  self.view:layout(self.data)
   self.view:changeMusic(SoundMng.getEftFlag(SoundMng.type[1]))
   self.view:changeSound(SoundMng.getEftFlag(SoundMng.type[2]))
 end

@@ -596,7 +596,7 @@ local json = createJson()
 	stepNextFun = nil,
 	DebugLuaFie = "",
 	runLineCount = 0,
-	version="1.0.4"
+	version="1.0.3"
 	
 
 }
@@ -636,61 +636,12 @@ function print(...)
 		if(debug_server) then
 			local arg = {...}    --这里的...和{}符号中间需要有空格号，否则会出错  
 			local str = ""
-			if(#arg==0) then
-				arg = { "nil" }
-			end
 			for k, v in pairs(arg) do
 				str = str .. tostring(v) .. "\t"
 			end
 			local sendMsg = {
 				event = LuaDebugger.event.C2S_LuaPrint,
-				data = {msg = ZZBase64.encode( str),type=1}
-			}
-			local sendStr = json.encode(sendMsg)
-			debug_server:send(sendStr .. "__debugger_k0204__")
-		end
-	end
-end
-function luaIdePrintWarn( ... )
-	if(LuaDebugger.isProntToConsole == 1 or LuaDebugger.isProntToConsole == 3) then
-		debugger_print(...)
-	end
-	if(LuaDebugger.isProntToConsole == 1 or LuaDebugger.isProntToConsole == 2) then
-		if(debug_server) then
-			local arg = {...}    --这里的...和{}符号中间需要有空格号，否则会出错  
-			local str = ""
-				if(#arg==0) then
-					arg = { "nil" }
-				end
-			for k, v in pairs(arg) do
-				str = str .. tostring(v) .. "\t"
-			end
-			local sendMsg = {
-				event = LuaDebugger.event.C2S_LuaPrint,
-				data = {msg = ZZBase64.encode( str),type=2}
-			}
-			local sendStr = json.encode(sendMsg)
-			debug_server:send(sendStr .. "__debugger_k0204__")
-		end
-	end
-end
-function luaIdePrintErr( ... )
-	if(LuaDebugger.isProntToConsole == 1 or LuaDebugger.isProntToConsole == 3) then
-		debugger_print(...)
-	end
-	if(LuaDebugger.isProntToConsole == 1 or LuaDebugger.isProntToConsole == 2) then
-		if(debug_server) then
-			local arg = {...}    --这里的...和{}符号中间需要有空格号，否则会出错  
-			local str = ""
-				if(#arg==0) then
-					arg = { "nil" }
-				end
-			for k, v in pairs(arg) do
-				str = str .. tostring(v) .. "\t"
-			end
-			local sendMsg = {
-				event = LuaDebugger.event.C2S_LuaPrint,
-				data = {msg = ZZBase64.encode( str),type=3}
+				data = {msg = ZZBase64.encode( str)}
 			}
 			local sendStr = json.encode(sendMsg)
 			debug_server:send(sendStr .. "__debugger_k0204__")
@@ -839,12 +790,6 @@ debugger_stackInfo = function(ignoreCount, event)
 		end
 		if(isadd) then
 			local file = source.source
-			if file:find("@") == 1 then
-				file = file:sub(2);
-				if not file:find("/") then
-					file = file:gsub("%.", "/")
-				end
-			end
 			local info =
 			{
 				src = file,
@@ -892,7 +837,7 @@ local function debugger_receiveDebugBreakInfo()
 			if netData.event == LuaDebugger.event.S2C_SetBreakPoints then
 				debugger_setBreak(netData.data)
 			elseif netData.event == LuaDebugger.event.S2C_LoadLuaScript then
-				-- print("获取数据")
+				print("获取数据")
 				debugger_exeLuaString(netData.data, false)
 			end
 		end
@@ -936,7 +881,7 @@ debugger_setBreak = function(datas)
 			breakInfos[data.fileName] = nil
 		end
 	end
-	-- debugger_dump(breakInfos, "breakInfos", 6)
+	debugger_dump(breakInfos, "breakInfos", 6)
 	--检查是否需要断点
 	local isHook = false
 	for k, v in pairs(breakInfos) do
@@ -979,9 +924,6 @@ local function debugger_checkIsBreak(fileName, line)
 		source = source:gsub("\\", "/")
 		if source:find("@") == 1 then
 			source = source:sub(2);
-			if not source:find("/") then
-				source = source:gsub("%.", "/")
-			end
 		end
 		local index = source:find("%.lua")
 		if not index then
@@ -1097,9 +1039,6 @@ local function getSource(source)
 	file = file:gsub("\\", "/")
 	if file:find("@") == 1 then
 		file = file:sub(2);
-		if not file:find("/") then
-			file = file:gsub("%.", "/")
-		end
 	end
 	local index = file:find("%.lua")
 	if not index then
@@ -1186,7 +1125,7 @@ local function debugger_getBreakVar(body, server)
 			break;
 		end
 	end
-	
+local varType = type(vars)
 if(varType == "userdata" ) then
 		if(LuaDebugTool) then
 			debugger_GeVarInfoBytUserData(server,vars,variablesReference,debugSpeedIndex)
@@ -1368,7 +1307,7 @@ debug_hook = function(event, line)
 			else
 				if(funs[2] == tempFunc) then
 					local data = debugger_stackInfo(3, LuaDebugger.event.C2S_StepInResponse)
-					-- print("StepIn 挂起")
+					print("StepIn 挂起")
 					--挂起等待调试器作出反应
 					coroutine.resume(coro_debugger, data)
 					return
@@ -1380,7 +1319,7 @@ debug_hook = function(event, line)
 				return
 			end
 			local data = debugger_stackInfo(3, LuaDebugger.event.C2S_StepInResponse)
-			-- print("StepIn 挂起")
+			print("StepIn 挂起")
 			--挂起等待调试器作出反应
 			coroutine.resume(coro_debugger, data)
 			return
@@ -1579,7 +1518,7 @@ function ZZBase64.__left1(res, index,text, len)
     local num = string.byte(text, len + 1)
     num = num * 16 
     
-    local tmp = math.floor(num / 64)
+    tmp = math.floor(num / 64)
     local curPos = tmp % 64 + 1
     res[index ] = ZZBase64.__code[curPos]
     

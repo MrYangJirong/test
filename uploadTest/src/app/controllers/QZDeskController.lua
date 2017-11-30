@@ -19,7 +19,7 @@ function QZDeskController:postAppendListens()
             --   self:sendMsgQiang(0)
             self:timerFinish()
           end
-          self:timerStart('chooseQZ', 6, callback)
+          self:timerStart('chooseQZ', 9, callback)
       end)
 
     self.listener[#self.listener + 1] =
@@ -88,7 +88,7 @@ function QZDeskController:postAppendListens()
             --   self.emitter:emit('showLastCard')
             self:timerFinish()
           end
-          self:timerStart('checkCards', 8, callback)
+          self:timerStart('checkCards', 15, callback)
       end)
 end
 

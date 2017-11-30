@@ -42,13 +42,7 @@ function XYSummaryView:layout(data)
     round:setString("" .. rounds)
 
     local base = panel:getChildByName('base')
-    local tabBaseStr = {
-        ['2/4'] = '1, 2, 3',
-        ['4/8'] = '4, 6, 8',
-        ['5/10'] = '6, 8, 10',
-    }
-    local baseStr = tabBaseStr[deskInfo.base] or deskInfo.base
-    base:setString("" .. baseStr)
+    base:setString("" .. deskInfo.base)
 
     local arr = { '牛牛上庄', '固定庄家', '自由抢庄', '明牌抢庄', '通比牛牛', '星星牛牛', "疯狂加倍"}
     local gameplay = panel:getChildByName('gameplay')
@@ -162,12 +156,12 @@ function XYSummaryView:freshItem(item, player, record, win, lose)
 		owner:setVisible(true)
 	end
 	
-	local path = 'views/xysummary/dyj1.png'
+	local path = 'views/record/winner.png'
 	local top = item:getChildByName('top')
 	if player.uid == win then
-		path = 'views/xysummary/dyj1.png'
+		path = 'views/record/winner.png'
 	elseif player.uid == lose then
-		path = 'views/xysummary/th2.png'
+		path = 'views/record/loser.png'
 	else
 		top:setVisible(false)
 	end
@@ -175,14 +169,14 @@ function XYSummaryView:freshItem(item, player, record, win, lose)
 	
 	local total = (item:getChildByName('total')):getChildByName('cnt')
     if record and record.score >= 0 then
-        total:setColor(cc.c3b(255,0,0))
+        total:setColor(cc.c3b(255,69,0))
         total:setString("+"..record.score)
     elseif record and record.score < 0 then
-        total:setColor(cc.c3b(56,157,16))
+        total:setColor(cc.c3b(94,174,255))
 	    total:setString(record.score)
     else 
         item:setVisible(false)
-        total:setColor(cc.c3b(255,0,0))
+        total:setColor(cc.c3b(178,34,34))
         total:setString("--")
     end
 end

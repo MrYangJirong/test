@@ -12,7 +12,7 @@ function NotifyView:initialize()
 
   self.updatef = Scheduler.new(function(dt)
     self.tst_delay = self.tst_delay + dt
-    if self.tst_delay > 20 then
+    if self.tst_delay > 3 then
       self.tst_delay = 0
       self:pushNotic()
     end
@@ -41,27 +41,22 @@ function NotifyView:initialize()
 end
 
 function NotifyView:pushNotic()
-      self:pushNotify(
+   self:pushNotify(
       {
-        -- {
-        --   text = '欢迎来到 ',
-        --   color = {255,255,100}
-        -- },
-        -- {
-        --   text = ' 牛将军 ',
-        --   color = {208,47,23}
-        -- },
         {
-          text = '牛大仙隆重上线，如果您游戏过程中遇到任何问题，请联系我们客服处理！客服微信号： ',
+          text = '俏游牛牛',
           color = {255,255,255}
         },
         {
-          text = ' ',
-          color = {208,47,23}
+          text = '新版本隆重上线，如果您游戏过程中遇到任何问题，请联系我们客服处理，客服QQ群: ',
+          color = {255,255,255}
         },
-
+        {
+          text = '',
+          color = {255,255,255}
+        }
       })
-end
+    end
 
 
 function NotifyView:notify(msg)
@@ -81,7 +76,7 @@ function NotifyView:pushNotify(tst_data)
 
   for i = 1,#tst_data do
     local data = tst_data[i]
-    local re1 = ccui.RichElementText:create( 1,cc.c3b(data.color[1],data.color[2],data.color[3]),255,data.text,'views/font/fangzheng.ttf', 25 )
+    local re1 = ccui.RichElementText:create( 1,cc.c3b(data.color[1],data.color[2],data.color[3]),255,data.text,'views/font/fangzheng.ttf', 23 )
     richText:pushBackElement(re1)
   end
 

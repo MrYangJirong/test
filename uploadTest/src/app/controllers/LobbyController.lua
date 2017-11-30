@@ -29,7 +29,7 @@ function LobbyController:initialize()
 	
 	self.menuVisible = false
 
-    self.wfName = {
+       self.wfName = {
         '牛牛上庄',
         '固定庄家',
         '自由抢庄',
@@ -103,7 +103,7 @@ function LobbyController:viewDidLoad()
     self:loadNotifyController()
     app.session.room:doSync()
 
-
+    self:clickFriendRoomList()
 end
 
 local function setWidgetAction(controller, self, args)
@@ -150,7 +150,13 @@ function LobbyController:clickShare()
     self:hideMenu()
 end
 function LobbyController:buyDiamonds()
-    setWidgetAction('BuyDiamondsController', self)
+    -- setWidgetAction('BuyDiamondsController', self)
+    setWidgetAction('H5ShopController', self)
+    self:hideMenu()
+end
+
+function LobbyController:clickSpread()
+    setWidgetAction('SpreadController', self)
     self:hideMenu()
 end
 
@@ -205,20 +211,17 @@ function LobbyController:clickEnterRoom()
 end
 
 function LobbyController:clickGroup()
-    -- setWidgetAction('GroupController', self)
-    app:switch('GroupController')
-    -- self:hideMenu()
+    setWidgetAction('GroupController', self)
+    self:hideMenu()
 end
 
 function LobbyController:clickContact()
-    -- setWidgetAction('MessageController', self)
     setWidgetAction('ContactUsController', self)
     self:hideMenu()
 end
 
 function LobbyController:clickHelp()
-    --setWidgetAction('HelpController', self)
-    setWidgetAction('MessageController', self)
+    setWidgetAction('HelpController', self)
     self:hideMenu()
 end
 
@@ -275,6 +278,11 @@ function LobbyController:clickGem()
   tools.showMsgBox("提示", "购买钻石请联系xxxx")
 end
 
+function LobbyController:clickGroup()
+    setWidgetAction('GroupController', self)
+    self:hideMenu()
+end
+
 function LobbyController:clickKefu()
   SoundMng.playEft('btn_click.mp3')
   local app = require("app.App"):instance()
@@ -284,6 +292,18 @@ function LobbyController:clickKefu()
   ctrl:on('back',function()
     ctrl:delete()
   end)
+end
+
+function LobbyController:clickFriendRoomList()
+    SoundMng.playEft('btn_click.mp3')
+    self.view:freshRoomListView('friend')
+    self.view:freshImageTitle('friend')
+end
+
+function LobbyController:clickGroupRoomList()
+    SoundMng.playEft('btn_click.mp3')
+    self.view:freshRoomListView('group')
+    self.view:freshImageTitle('group')
 end
 
 function LobbyController:clickExit()
@@ -296,7 +316,7 @@ function LobbyController:clickExit()
             local luaoc = nil
             luaoc = require('cocos.cocos2d.luaoc')
             if luaoc then
-                luaoc.callStaticMethod("AppController", "clickExit",{ww='dyyx777777'})
+                luaoc.callStaticMethod("AppController", "clickExit",{ww='ADFZ88888'})
             end
         else
             cc.Director:getInstance():endToLua()

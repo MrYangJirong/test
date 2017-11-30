@@ -9,9 +9,6 @@ local GroupController = class("GroupController", Controller):include(HasSignals)
 function GroupController:initialize()
     Controller.initialize(self)
     HasSignals.initialize(self)
-
-    self.toggleDelView = false
-    self.toggleBanView = false
 end
 
 function GroupController:viewDidLoad()
@@ -33,21 +30,20 @@ function GroupController:viewDidLoad()
             self.view:freshAdminMsg(false)    
             self.view:freshSettingBtn(false)
             self.view:freshMemberBtn(false) 
-            self.view:freshGroupNameAndID(false) 
+            self.view:freshGroupNameAndID(false)
             self.view:freshNoRoomTips(false)
-            self.view:freshCreateRoomBtn(false)            
+            self.view:freshCreateRoomBtn(false)
         else  
             self.view:freshSettingBtn(true)
-            self.view:freshMemberBtn(true)   
-            self.view:freshMemberBtn(true) 
-            self.view:freshCreateRoomBtn(true)                                                
+            self.view:freshMemberBtn(true)
+            self.view:freshCreateRoomBtn(true)                                    
         end
     end),
 
     --创建房间结果消息
     group:on('GroupMgr_creatResult',function(groups)
         dump(groups)
-        self:clickCancelCreate()
+        tools.showRemind("牛友群创建成功")         
     end),
 
     -- 查询牛友群结果消息 0:查询失败 1:查询成功
@@ -201,13 +197,6 @@ function GroupController:viewDidLoad()
         group:delUser(groupId, playerId)
     end),  
 
-    self.view:on('memberListBanMember',function(msg)
-        if not msg then return end
-        local groupInfo = self.group:getCurGroup()
-        local groupId = groupInfo.id 
-        group:banUser(groupId, msg[1], msg[2])
-    end),  
-
     -- 点击房间
     self.view:on('touchRoomItem',function(roomId)
         print(roomId)
@@ -253,8 +242,6 @@ function GroupController:updateCurGroupMemberList()
     local memberInfo = group:getMemberInfo(groupId)
     local ownerInfo = groupInfo.ownerInfo
     self.view:freshMemberList(memberInfo, ownerInfo, myPlayerId)
-
-    self.toggleDelView = not self.toggleDelView
 end
 
 function GroupController:clickSetting()
@@ -336,18 +323,7 @@ end
 
 --删除成员
 function GroupController:clickDelMember()
-    self:updateCurGroupMemberList()
-    if not self.toggleDelView then
-        self.view:freshAdminMemberListDelBtn(nil, true)
-    end
-end
-
---禁止加入
-function GroupController:clickBanPlayer()
-    self:updateCurGroupMemberList()
-    if not self.toggleDelView then
-        self.view:freshAdminMemberListBanBtn(nil, true)
-    end
+    self.view:freshAdminMemberListDelBtn(nil, true)
 end
 
 --创建牛友群
@@ -420,7 +396,7 @@ end
 
 -- 点击成员显示头像
 function GroupController:clickMemberInfo()
-    -- setWidgetAction('PersonalPageController', self, nil)
+    setWidgetAction('PersonalPageController', self, nil)
 end
 
 --牛友群----------------------创建 确定
@@ -440,6 +416,12 @@ function GroupController:clickCancelCreate()
     self.view:freshGroupCreateLayer(false) 
     self.view:freshCreateEditBox("", true)
     self.view:freshGroupListVisible(true) 
+end
+
+----------------------创建 结果
+function GroupController:clickCreateResult()
+    self:clickCancelCreate()
+    -- self.view:freshCreateGroupResult(false)
 end
 
 ----------------------加入 查询
@@ -508,13 +490,17 @@ function GroupController:clickAdminMemberLayer()
 end
 
 function GroupController:clickCloseWan()
-    self.view:freshRoomInfo(false) 
+    -- self.view:freshRoomInfo(false) 
 end
 
 function GroupController:clickBack()
     SoundMng.playEft('btn_click.mp3')
     local app = require('app.App'):instance()
     app:switch('LobbyController')
+end
+
+function GroupController:clickNoRoomTips()
+    -- self.view:freshNoRoomTips(false)
 end
 
 function GroupController:finalize()

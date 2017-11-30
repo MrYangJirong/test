@@ -4,9 +4,9 @@ GameLogic.SPECIAL_EMUN = {
     WUXIAO = 7,
     BOOM = 6,
     HULU = 5,
-    WUHUA_J = 2,
+    WUHUA_J = 3,
     WUHUA_Y = -1,
-    TONGHUA = 3,
+    TONGHUA = 2,
     STRAIGHT = 1,
 }
 
@@ -14,9 +14,9 @@ GameLogic.CLIENT_SETTING = {
     WUXIAO = 7,
     BOOM = 6,
     HULU = 5,
-    WUHUA_J = 2,
+    WUHUA_J = 3,
     WUHUA_Y = -1,
-    TONGHUA = 3,
+    TONGHUA = 2,
     STRAIGHT = 1,
 }
 
@@ -26,7 +26,7 @@ GameLogic.NIU_MULNUM = {
       {[2]=2, [3]=3, [4]=5, [5]=5, [6]=6, [7]=7, [8]=8, [9]=9, [10]=10},
   },
   default = {
-      { [10] = 5, [9] = 4, [8] = 3, [7] = 2 },
+      { [10] = 4, [9] = 3, [8] = 2, [7] = 2 },
       { [10] = 3, [9] = 2, [8] = 2 },
   }
 }
@@ -42,11 +42,11 @@ GameLogic.SPECIAL_MULNUM = {
   },
   default = {
       WUXIAO = 8,
-      WUHUA_J = 8,
-      STRAIGHT = 8,
-      TONGHUA = 8,
-      HULU = 8,
-      BOOM = 8,
+      BOOM = 7,
+      HULU = 6,
+      WUHUA_J = 5,
+      TONGHUA = 5,
+      STRAIGHT = 5,
   }
 }
 
@@ -167,7 +167,7 @@ function GameLogic.getSpecialType(cards, setting)
       type = spEmun.WUXIAO
       break
     end
-    
+
     -- 炸弹牛
     if (tabHandVal[1] == tabHandVal[4] or
        tabHandVal[2] == tabHandVal[5]) and
@@ -183,15 +183,6 @@ function GameLogic.getSpecialType(cards, setting)
        isEnabled(set.HULU)
     then
       type = spEmun.HULU
-      break
-    end
-
-
-    -- 同花
-    if isTONGHUA and
-      isEnabled(set.TONGHUA)
-    then
-      type = spEmun.TONGHUA
       break
     end
 
@@ -211,6 +202,14 @@ function GameLogic.getSpecialType(cards, setting)
       break
     end
 
+    -- 同花
+    if isTONGHUA and
+      isEnabled(set.TONGHUA)
+    then
+      type = spEmun.TONGHUA
+      break
+    end
+
     -- 顺子
     local t = tabHandVal
     if t[1] == t[2] + 1 and
@@ -222,7 +221,6 @@ function GameLogic.getSpecialType(cards, setting)
       type = spEmun.STRAIGHT
       break
     end
-
   until true
 
   return type, GameLogic.getSpecialTypeByVal(type)

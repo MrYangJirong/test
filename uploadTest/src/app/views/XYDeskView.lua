@@ -89,6 +89,10 @@ function XYDeskView:initialize() -- luacheck: ignore
     -- 显示庄家动画相关
     self.updateBankerFunc = nil
     self.bettingMsg = nil
+
+    -- 储存所有扑克节点纹理路径
+    self.tabCardsTexture = {}
+
 end
 
 
@@ -151,6 +155,10 @@ function XYDeskView:layout(desk)
     local mainPanel = self.ui:getChildByName('MainPanel')
     mainPanel:setPosition(display.cx, display.cy)
     self.MainPanel = mainPanel
+
+    local desktopIdx = self:getCurDesktop() or 2
+    self:setCurDesktop(desktopIdx)
+    self:changeDesktop(desktopIdx) 
 
     self:freshRoomInfo(self.desk.info, true)
 
@@ -316,9 +324,45 @@ function XYDeskView:layout(desk)
 
 end
 
+function XYDeskView:changeDesktop(idx)
+	idx = idx or 1
+	local path = 'views/nysdesk/bg' .. idx .. '.png'
+	self.MainPanel:getChildByName('bg'):loadTexture(path)
+	self:setCurDesktop(idx)
+end
+
+function XYDeskView:setCurDesktop(idx)
+	local app = require("app.App"):instance()
+	app.localSettings:set('desktop', idx)
+end
+
+function XYDeskView:getCurDesktop()
+	local app = require("app.App"):instance()
+	local idx = app.localSettings:get('desktop')
+	return idx or 2
+end
+
+function XYDeskView:getCurCuoPai()
+	local app = require("app.App"):instance()
+	local idx = app.localSettings:get('cuoPai')
+	idx = idx or 1
+	return idx
+end 
+
+function XYDeskView:changeCardBack()
+    local backIdx = self:getCurCuoPai()
+    for k, v in pairs(self.tabCardsTexture) do
+        for n, m in pairs(v) do
+            if m == 'back' then
+                self:freshCardsTexture(k,n,nil,backIdx)
+            end
+        end
+    end
+end 
+
 -- 1:等待开始 2.等待准备
 function XYDeskView:freshStatusText(bShow, textCode, cd)
-    cd = cd or 9
+    cd = cd or 10
     self.statusText:stopAllActions()
 
     if bShow and self.desk:isGamePlaying() then
@@ -792,13 +836,7 @@ function XYDeskView:freshRoomInfo(data, bool)
     gameplay:setString("庄位:" .. self.wfName[data.deskInfo.gameplay])
 
     local base = info:getChildByName('base')
-    local tabBaseStr = {
-        ['2/4'] = '1, 2, 3',
-        ['4/8'] = '4, 6, 8',
-        ['5/10'] = '6, 8, 10',
-    }
-    local baseStr = tabBaseStr[data.deskInfo.base] or data.deskInfo.base
-    base:setString("底分:" .. baseStr)
+    base:setString("底分:" .. data.deskInfo.base)
 
     local round = info:getChildByName('round')
     round:setString("局数:" .. data.number .. "/" .. data.deskInfo.round)
@@ -904,39 +942,16 @@ function XYDeskView:freshCheatView(msg)
         self.cheatBtn:setVisible(true)
         self.cheatBtn:setEnabled(true)
         
-        local spTab = {
-            WUXIAO = '五小',
-            BOOM = '炸弹',
-            HULU = '葫芦',
-            WUHUA_J = '五花',
-            WUHUA_Y = -1,
-            TONGHUA = '同花',
-            STRAIGHT = '顺子',
-        }
-        local specialOption = self.desk.info.deskInfo.special
-
-
         for k, v in pairs(msg) do
             local posKey = self.desk:getPlayerPosKey(k)
             local cards = v.tabCards
-            -- 特殊牌
-            local specialType, name = GameLogic.getSpecialType(cards, specialOption)
-            -- 牛牛
-            local cnt = 0
-            local niuniuP = self.desk:findNiuniu(cards)
-            if niuniuP then
-                cnt = self.desk:findNiuniuCnt(cards)
-            end
-            
-            -- local result = self.desk:findNiuniu(cards)
-            local cheatStr = "--"
-            if specialType > 0 then
-                cheatStr = spTab[name] or '特殊牌'
-            elseif niuniuP then
-                cheatStr = string.format( "%s", cnt)
+            local result = self.desk:findNiuniu(cards)
+            local cnt = "--"
+            if result then
+                cnt = string.format("%s",self.desk:findNiuniuCnt(cards))
             end
             if self.tabCheatLable[posKey] then
-                self.tabCheatLable[posKey]:setString(cheatStr)
+                self.tabCheatLable[posKey]:setString(cnt)
             end
         end
     end
@@ -1225,17 +1240,49 @@ function XYDeskView:setCardsDisplay(name, visible, isFinish)
     self:freshCheckState(name, { info = 'chooseFinish' }, isFinish)
 end
 
-function XYDeskView:getCardTexturePath(value)
+function XYDeskView:freshCardsTexture(name, idx, value, backIdx)
+    local component = self.MainPanel:getChildByName(name)
+    local cards = component:getChildByName('cards')
+    local card = cards:getChildByName('card' .. idx)
+    
+    value = value or '♠A'
+
     local suit = self.suit_2_path[self:card_suit(value)]
     local rnk = self:card_rank(value)
 
+    if not self.tabCardsTexture[name] then
+        self.tabCardsTexture[name] = {}
+    end
+    self.tabCardsTexture[name][idx] = 'front'
+
     local path
-    if suit == 'j1' or suit == 'j2' then
+    if backIdx then
+        self.tabCardsTexture[name][idx] = 'back'
+        path = 'views/xydesk/cards/xpaibei_' .. backIdx .. '.png'
+    elseif suit == 'j1' or suit == 'j2' then
         path = 'views/xydesk/cards/' .. suit .. '.png'
     else
         path = 'views/xydesk/cards/' .. suit .. rnk .. '.png'
     end
-    return path
+    card:loadTexture(path)
+end
+
+function XYDeskView:freshCardsTextureByNode(cardNode, value, backIdx)
+
+    value = value or '♠A'
+
+    local suit = self.suit_2_path[self:card_suit(value)]
+    local rnk = self:card_rank(value)
+
+    local path
+    if backIdx then
+        path = 'views/xydesk/cards/xpaibei_' .. backIdx .. '.png'
+    elseif suit == 'j1' or suit == 'j2' then
+        path = 'views/xydesk/cards/' .. suit .. '.png'
+    else
+        path = 'views/xydesk/cards/' .. suit .. rnk .. '.png'
+    end
+    cardNode:loadTexture(path)
 end
 
 function XYDeskView:freshCardsDisplay(name, data)
@@ -1247,21 +1294,23 @@ function XYDeskView:freshCardsDisplay(name, data)
     local cards = component:getChildByName('cards')
     local mycards = data
     for i, v in ipairs(mycards) do
-        local card = cards:getChildByName('card' .. i)
-        local suit = self.suit_2_path[self:card_suit(v)]
-        local rnk = self:card_rank(v)
 
-        local path
-        if suit == 'j1' or suit == 'j2' then
-            path = 'views/xydesk/cards/' .. suit .. '.png'
-            --print(" -> [" .. i .. "] suit : ", suit)
-        else
-            --print(" -> [" .. i .. "] suit : ", suit, "rnk : ", rnk)
-            path = 'views/xydesk/cards/' .. suit .. rnk .. '.png'
-        end
-        --print(" -> card display : ", path)
-        card:loadTexture(path)
-        -- print(" -> freshCardsDisplay path : ", path)
+        self:freshCardsTexture(name, i, v)
+        -- local card = cards:getChildByName('card' .. i)
+        -- local suit = self.suit_2_path[self:card_suit(v)]
+        -- local rnk = self:card_rank(v)
+
+        -- local path
+        -- if suit == 'j1' or suit == 'j2' then
+        --     path = 'views/xydesk/cards/' .. suit .. '.png'
+        --     --print(" -> [" .. i .. "] suit : ", suit)
+        -- else
+        --     --print(" -> [" .. i .. "] suit : ", suit, "rnk : ", rnk)
+        --     path = 'views/xydesk/cards/' .. suit .. rnk .. '.png'
+        -- end
+        -- --print(" -> card display : ", path)
+        -- card:loadTexture(path)
+        -- -- print(" -> freshCardsDisplay path : ", path)
     end
 end
 
@@ -1280,20 +1329,22 @@ function XYDeskView:freshMiniCards(bool, data)
     local mycards = data
     for i, v in ipairs(mycards) do
         local card = cards:getChildByName('card' .. i)
-        local suit = self.suit_2_path[self:card_suit(v)]
-        local rnk = self:card_rank(v)
+        self:freshCardsTextureByNode(card, v)
+        -- local card = cards:getChildByName('card' .. i)
+        -- local suit = self.suit_2_path[self:card_suit(v)]
+        -- local rnk = self:card_rank(v)
 
-        local path
-        if suit == 'j1' or suit == 'j2' then
-            path = 'views/xydesk/cards/' .. suit .. '.png'
-            --print(" -> [" .. i .. "] suit : ", suit)
-        else
-            --print(" -> [" .. i .. "] suit : ", suit, "rnk : ", rnk)
-            path = 'views/xydesk/cards/' .. suit .. rnk .. '.png'
-        end
-        --print(" -> card display : ", path)
-        card:loadTexture(path)
-        -- print(" -> freshCardsDisplay path : ", path)
+        -- local path
+        -- if suit == 'j1' or suit == 'j2' then
+        --     path = 'views/xydesk/cards/' .. suit .. '.png'
+        --     --print(" -> [" .. i .. "] suit : ", suit)
+        -- else
+        --     --print(" -> [" .. i .. "] suit : ", suit, "rnk : ", rnk)
+        --     path = 'views/xydesk/cards/' .. suit .. rnk .. '.png'
+        -- end
+        -- --print(" -> card display : ", path)
+        -- card:loadTexture(path)
+        -- -- print(" -> freshCardsDisplay path : ", path)
     end
     cards:setVisible(true)
 end
@@ -1787,10 +1838,14 @@ function XYDeskView:clearDesk(name)
 
     local cards = component:getChildByName('cards')
     cards:setVisible(false)
-    local path = 'views/xydesk/cards/xx.png'
+    local app = require("app.App"):instance()
+
+    local idx = self:getCurCuoPai()
+    -- local path = 'views/xydesk/cards/xpaibei_' .. idx .. '.png'
     for i = 1, 5 do
-        local card = cards:getChildByName('card' .. i)
-        card:loadTexture(path)
+        self:freshCardsTexture(name, i, nil, idx)
+        -- local card = cards:getChildByName('card' .. i)
+        -- card:loadTexture(path)
     end
     if name == 'bottom' then
         self:freshMiniCards(false)
@@ -1930,8 +1985,6 @@ function XYDeskView:freshChatMsg(name, msg)
     local txtPnl = chatFrame:getChildByName('txtPnl')
     local szTxTPnl = txtPnl:getContentSize()
     local txt = txtPnl:getChildByName('txt')
-    local txtPnl1 = chatFrame:getChildByName('txtPnl1')
-    local txt1 = txtPnl1:getChildByName('txt1')    
     local emoji = chatFrame:getChildByName('emoji')
     chatFrame:stopAllActions()
     chatFrame:setVisible(true)
@@ -1946,18 +1999,18 @@ function XYDeskView:freshChatMsg(name, msg)
       else
           str = msg.msg
       end
+      txtPnl:setVisible(true)
 
-      txtPnl:setVisible(false)
-      txtPnl1:setVisible(false)
-    --   local len = string.utf8len(str)
-      local len = string.len(str)
-      if len <= 42 then
-        txt:setString(str)
-        txtPnl:setVisible(true)
-      elseif len > 42 then
-        txt1:setString(str)
-        txtPnl1:setVisible(true)        
+      local sz = txt:getContentSize()
+      --local len = utf8.len(str)
+      local len = string.utf8len(str)
+      if len > 7 then
+          txtPnl:setContentSize(cc.size(len * 20 + 30, szTxTPnl.height))
+          if name == 'right' or name == 'righttop' then
+              txt:setPosition(cc.p(len * 20 + 30 - 5, txt:getPositionY()))
+          end
       end
+      txt:setString(str)
     elseif msgType == 1 then
         -- local path = "views/xychat/".. msg.msg ..".png"
         -- emoji:loadTexture(path)
@@ -1967,11 +2020,10 @@ function XYDeskView:freshChatMsg(name, msg)
 
     local callback = function()
         chatFrame:setVisible(false)
+        txtPnl:setContentSize(szTxTPnl)
         txtPnl:setVisible(false)
-        txtPnl1:setVisible(false)
         emoji:setVisible(false)
         txt:setString('')
-        txt1:setString('')
     end
 
     local delay = cc.DelayTime:create(2.5)
@@ -2100,14 +2152,7 @@ function XYDeskView:gameInfoAction(derection)
 	local desk = self.desk.info;
 	
 	text_wanfa:setString(self.wfName[desk.deskInfo.gameplay])
-
-    local tabBaseStr = {
-        ['2/4'] = '1, 2, 3',
-        ['4/8'] = '4, 6, 8',
-        ['5/10'] = '6, 8, 10',
-    }
-    local baseStr = tabBaseStr[desk.deskInfo.base] or data.deskInfo.base    
-	text_difen:setString(baseStr)
+	text_difen:setString(desk.deskInfo.base)
 
 	local multiply = desk.deskInfo.multiply
 	local roomPrice=desk.deskInfo.roomPrice
@@ -2126,7 +2171,7 @@ function XYDeskView:gameInfoAction(derection)
     if self.desk.info.deskInfo.gameplay == 7 then
         beiRuleString = "牛1~牛牛    1倍~10倍"
 	elseif(multiply == 1) then
-		beiRuleString = "牛牛x5 牛九x4 牛八x3 牛七x2"
+		beiRuleString = "牛牛x4 牛九x3 牛八x2 牛七x2"
 	else
 		beiRuleString = "牛牛x3 牛九x2 牛八x2"
 	end
@@ -2187,11 +2232,11 @@ function XYDeskView:gameInfoAction(derection)
 
     local tabRule2 = {
         WUXIAO = "五小牛(8倍) ",
-        BOOM = "炸弹牛(8倍) ",
-        HULU = "葫芦牛(8倍) ",
-        WUHUA_J = "五花牛(8倍) ",
-        TONGHUA = "同花牛(8倍) ",
-        STRAIGHT = "顺子牛(8倍) ",
+        BOOM = "炸弹牛(7倍) ",
+        HULU = "葫芦牛(6倍) ",
+        WUHUA_J = "五花牛(5倍) ",
+        TONGHUA = "同花牛(5倍) ",
+        STRAIGHT = "顺子牛(5倍) ",
     }
 
     local tabRule1 = {
@@ -2225,9 +2270,9 @@ function XYDeskView:gameInfoAction(derection)
     specialString=specialStringType1..specialStringType2..specialStringType3..specialStringType4
 	text_beiRule:setString(beiRuleString)
 	text_roomRule:setString(roomRuleString.." "..advancedString)
-    if(text_roomRule:getContentSize().width>500) then 
-    text_roomRule:setFontSize(20)
-    end
+    -- if(text_roomRule:getContentSize().width>439) then 
+    --     text_roomRule:setFontSize(20)
+    -- end
 	text_Twanfa:setString(ruleText)
 	
 	if derection == 'Out' then
